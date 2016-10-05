@@ -1,0 +1,15 @@
+
+#define KNOB_WORK_ITEMS    4
+#define KNOB_WORK_GROUPS   1
+
+#define KNOB_COMPUTE_UNITS 1
+
+#define KNOB_UNROLL        1
+#define KNOB_UNROLL_INNER  1
+
+#define KNOB_WINDOW_SIZE_X 4
+
+#define KNOB_DESIGN_TYPE   1
+
+#define TOTAL_WORK_ITEMS (KNOB_WORK_ITEMS*KNOB_WORK_GROUPS)
+

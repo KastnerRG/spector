@@ -1,0 +1,25 @@
+
+#ifndef PARAMS_H_
+#define PARAMS_H_
+
+
+#define KNOB_NUM_HIST        %1
+#define KNOB_HIST_SIZE       %2
+
+#define KNOB_NUM_WORK_ITEMS  %3
+#define KNOB_NUM_WORK_GROUPS %4
+
+#define KNOB_SIMD            %5
+#define KNOB_COMPUTE_UNITS   %6
+
+#define KNOB_ACCUM_SMEM      %7
+
+#define KNOB_UNROLL_FACTOR   %8
+
+
+
+#define TOTAL_WORK_ITEMS (KNOB_NUM_WORK_ITEMS * KNOB_NUM_WORK_GROUPS)
+
+
+
+#endif /* PARAMS_H_ */

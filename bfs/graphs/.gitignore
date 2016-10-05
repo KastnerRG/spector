@@ -1,0 +1,4 @@
+*.txt
+
+!large_0.01.txt
+!reg_d3_n100000.txt

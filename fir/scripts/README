@@ -1,0 +1,4 @@
+Warning: Unorganized scripts that need to be rewritten.
+
+
+Warning: The generateParams.py scripts needs to copy the content of parameters.h at the beginning of the kernel file (instead of including parameters.h), otherwise the GPU run can potentially fail with some NVidia drivers.
