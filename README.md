@@ -18,6 +18,12 @@ We provide the following algorithms as OpenCL benchmarks for FPGA:
 * [Sobel filter](sobel)
 * [Sparse matrix-vector multiplication](spmv)
 
+## Compatibility
+
+* The source codes have been tested under Linux, Ubuntu 14.04.
+* The OpenCL codes have been tested on a Terasic DE5 board, compiled with the Altera OpenCL SDK v14.1.
+* The scripts to generate the architectures have been tested on Ubuntu 14.04. Note that some of these scripts rely on soft links, which may not be available in some OS.
+
 ## Design space data
 
 We compiled thousands of unique designs with the Altera OpenCL SDK, executed them on a Terasic DE5 board, and recorded the performance and area results. These data are available in the [results_and_analysis](results_and_analysis) directory in MATLAB format.
