@@ -1,5 +1,3 @@
-make clean
-
 M=1024
 
 num_design=0

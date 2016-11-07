@@ -12,10 +12,8 @@ The input signal is given as an array of 32-bits floating-point values organized
 
 ## Usage
 
-* `cl_gen` contains a python script to generate all the OpenCL designs and bash scripts to compile them.
-* `fpga_cpp_gen` contains a python script to generate all the source codes to run each design, and a bash script to compile and run all the programs.
-
-The compiled designs should be copied to (or generated in) the `fpga_cpp_gen`, then everything can run inside this directory.
+* `src` contains the base files to generate the designs
+* `scripts` contains scripts to generate the designs, compile them and run them
 
 ## Algorithm
 
