@@ -40,27 +40,25 @@
 # Author: Quentin Gautier
 
 
-import math
 import itertools
-import os.path
 import sys
-import shutil
+
+sys.path.append("../../common/scripts")
+from generateDesigns import createFolders
 
 
-inFilepath  = "../src/params.h.template"  # Knobs template file
-dirToCopy   = "../benchmarks/basefolder"  # Directory containing the source code
-outRootPath = "../benchmarks"             # Name of output directory where all folders are generated
+templateFilepath = "../src/params.h.template" # Knobs template file
+kernelFilename   = "../src/histogram.cl"      # Kernel file to copy 
+dirToCopy        = "../benchmarks/basefolder" # Directory containing the source code
 
-outBasename = "hist_design"               # Base name of generated folders
-outFilename = "params.h"                  # Name of generated knob file
-logFilename = "folders.log"               # Log file to copy useful information
-
+outRootPath      = "../benchmarks"            # Name of output directory where all folders are generated
+outBasename      = "hist_design"              # Base name of generated folders
+outKnobFilename  = "params.h"                 # Name of generated knob file
+logFilename      = "params.log"               # Log file to copy useful information
 
 # ***************************************************************************
 # Knobs
 # ***********
-FULL_UNROLL = -1
-
 
 
 KNOB_NUM_HIST  = [i for i in range(1, 17)]
@@ -111,64 +109,6 @@ def removeCombinations(combs):
 
 
 
-def createFolders(finalCombinations):
-
-    if not os.path.isfile(inFilepath):
-        print("File " + inFilepath + " does not exists.")
-        sys.exit(1)
-
-
-    logFile = open(logFilename, 'wt')
-
-
-    for (num, values) in enumerate(finalCombinations):
-
-        if(num % 1000) == 0:
-            percent = float(num) / len(finalCombinations) * 100.0
-            print("[" + str(int(percent)) + "%]")
-
-        strValues = [' ' if v==FULL_UNROLL else str(v) for v in values]
-
-        copiedDir = os.path.join(outRootPath, outBasename) + str(num)
-        shutil.copytree(dirToCopy, copiedDir, True)
-
-        outPath = os.path.join(copiedDir, outFilename)
-
-        with open(outPath, "wt") as fout:
-            with open(inFilepath, "rt") as fin:
-                for line in fin:
-
-                    newline = line
-
-                    for (i, replace) in reversed(list(enumerate(strValues))):
-
-                        text = '%' + str(i+1)
-                        newline = newline.replace(text, replace)
-
-                    fout.write(newline)
-
-
-        logFile.write(copiedDir + " " + ' '.join(map(str, values)) + "\n")
-
-
-
-#def writeParams(inFilepath, outFilename, combinations):
-#    inFile = open(inFilepath, 'rt')
-#    outFile = open(outFilename, 'wt')
-#
-#
-#    for i, line in enumerate(inFile):
-#        values = line.split()
-#        num = int(values[0])
-#
-#        comb = combinations[num]
-#
-#
-#        outFile.write(' '.join(values) + ' ' + str(comb) + "\n")
-
-
-
-
 
 def main():
 
@@ -183,11 +123,16 @@ def main():
     print("vs " + str(len(allCombinations)))
 
 
-    #writeParams("small.txt", "small_params.txt", finalCombinations)
-    #writeParams("big.txt", "big_params.txt", finalCombinations)
-
     if doCreateFolders == 1:
-        createFolders(finalCombinations)
+        createFolders(
+                finalCombinations,
+                templateFilepath,
+                kernelFilename,
+                dirToCopy,
+                outRootPath,
+                outBasename,
+                outKnobFilename,
+                logFilename)
     else:
         print("\nNote: To actually create the folders, run:\n" + sys.argv[0] + " 1\n")
 

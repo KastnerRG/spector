@@ -55,7 +55,7 @@ from generateDesigns import createFolders
 
 
 templateFilepath = "../src/knobs.h.template"  # Knobs template file
-kernelFilename   = "../src/mergesort.cl"      # Kernel file to copy *without the first line* 
+kernelFilename   = "../src/mergesort.cl"      # Kernel file to copy 
 dirToCopy        = "../benchmarks/basefolder" # Directory containing the source code
 
 outRootPath      = "../benchmarks"            # Name of output directory where all folders are generated

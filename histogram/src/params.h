@@ -6,7 +6,7 @@
 #define KNOB_NUM_HIST        2
 #define KNOB_HIST_SIZE       256
 
-#define KNOB_NUM_WORK_ITEMS  2
+#define KNOB_NUM_WORK_ITEMS  1
 #define KNOB_NUM_WORK_GROUPS 1
 
 #define KNOB_SIMD            1

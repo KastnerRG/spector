@@ -40,137 +40,37 @@
 # Author: Quentin Gautier
 
 
+
 import os
-import subprocess
 import re
 import sys
 
-
-outfilename       = "gpu_results.csv"           # Result filename
-
-paramsfilename    = "small.txt"   # List of designs with their parameters
-compiledfilename  = "small.txt"   # List of designs to run
-
-donefilename      = "gpu_run_done.csv"          # List of designs to not run
-
-clBasename        = "histogram"                 # Basename for the OpenCL file
-exeFilename       = "hist256"                   # Program filename
-
-defaultInput      = ""                          # Default input file
-
-verif_re = re.compile(r'Verification: (\S+)')   # Regex for verification
-verif_text =                          "SUCCESS" # Verification text to check for success
-time_re  = re.compile(r'Total: (\S+) ms')       # Regex for running time
-
-num_runs = 5
+sys.path.append("../../common/scripts")
+from runDesignsGpu import runDesignsGPU
 
 
 
 def main():
 
-    # Get input file
-    progInputFile =  defaultInput
-    #if len(sys.argv) > 1:
-    #    progInputFile = os.path.join("../", sys.argv[1]) # TODO set path correctly
-
-
-    done = []
-    if os.path.exists(donefilename):
-        with open(donefilename, 'rt') as donefile:
-            for line in donefile:
-                done.append(line.split(",")[0].strip())
-
-
-    dirs = []
-    with open(compiledfilename, 'rt') as infile:
-        for line in infile:
-            value = line.split()[0]
-            if not value in done:
-                dirs.append(value)
-
-    params = {}
-    with open(paramsfilename, 'rt') as parfile:
-        for line in parfile:
-            data = line.split()
-            params[data[0]] = data[1:]
-
-
-
-    outfile = open(outfilename, 'wt')
-
-
-    print(str(len(dirs)) + " directories")
-
-
-
+    # Process all designs?
+    process_all = False
+    if len(sys.argv) >= 2:
+        process_all = (sys.argv[1] == "1")
+ 
     
+    clBasename  = "histogram" # Basename for the OpenCL file
+    exeFilename = "hist256" # Program filename
+    verif_text  = "SUCCESS"
     
-    
-    outfile.write("ID," + ",".join(["param_"+str(i) for i in range(len(params[dirs[0]]))]) + ","
-            + ",time,verif,error,fit\n")
+    paramsfilename = "small.txt" if os.path.isfile("small.txt") else "params.log"
 
-
-    # for each directory
-    #
-    for d in dirs:
-
-
-        verif = 'F'
-        time = 999
-        error = 'Y'
-        fit = 'N'
-
-
-        # Compile and run
-        #
-        for itry in range(4):
-
-            try:
-                if os.path.isfile(os.path.join(d, clBasename + ".aocx")):
-                          
-                    fit = 'Y'
-                             
-                    subprocess.call("make gpu > /dev/null 2>&1", cwd=d, shell=True)
-                  
-                    print("Running " + d)
-                    output = subprocess.check_output("./" + exeFilename + " " + progInputFile + " gpu " + str(num_runs), cwd=d, shell=True, stderr=subprocess.STDOUT) #, timeout=5)
-
-
-                    for line in output.split(b'\n'):
-                        line = str(line)
-                        m = verif_re.search(line)
-                        m2 = time_re.search(line)
-
-                        if m:
-                            verif = 'P' if m.group(1) == verif_text else 'F'
-                        
-                        if m2:
-                            time = float(m2.group(1))
-
-                    error = 'N'
-                 
-
-            except subprocess.CalledProcessError:
-                print("ERROR " + d)
-                continue
-            except:
-                continue
-
-            break
-
-
-
-
-        csv = d + "," + ",".join(params[d]) + "," + "," + str(time) + "," + verif + "," + error + "," + fit
-        
-        outfile.write(csv + "\n")
-        outfile.flush()
-
-        print(csv)
-
-
-
-
+    runDesignsGPU(
+            clBasename,
+            exeFilename,
+            verif_text  = verif_text,
+            paramsfilename   = paramsfilename,
+            compiledfilename = paramsfilename,
+            process_all = process_all)
 
 
 

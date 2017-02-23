@@ -1,5 +1,3 @@
-#include "params.h"
-
 // ----------------------------------------------------------------------
 // Copyright (c) 2016, The Regents of the University of California All
 // rights reserved.
@@ -40,6 +38,8 @@
  * Description: Histogram calculation OpenCL benchmark.
  * Author: Quentin Gautier
  */
+
+#include "params.h"
 
 
 
