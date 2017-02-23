@@ -158,7 +158,7 @@ def main():
                         m2 = time_re.search(line)
 
                         if m:
-                            verif = 'P' if m.group(1) == verif_text else 'F'
+                            verif = 'P' if m.group(1).replace("'","") == verif_text else 'F'
                         
                         if m2:
                             time = float(m2.group(1))

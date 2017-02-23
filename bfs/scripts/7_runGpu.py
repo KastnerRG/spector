@@ -59,6 +59,7 @@ exeFilename       = "bfs_host"                 # Program filename
 defaultInput      = "../graphs/large_0.01.txt" # Default input file
 
 verif_re = re.compile(r'Verification: (\S+)')  # Regex for verification
+verif_text =                          "Passed" # Verification text to check for success
 time_re  = re.compile(r'Total time: (\S+) ms') # Regex for running time
 
 num_runs = 5
@@ -70,7 +71,13 @@ def main():
     # Get input file
     progInputFile =  defaultInput
     if len(sys.argv) > 1:
-        progInputFile = os.path.join("../", sys.argv[1]) # TODO set path correctly
+        progInputFile = sys.argv[1]
+    progInputFile = os.path.join("../", progInputFile) # TODO set path correctly
+
+    # Process all designs?
+    process_all = False
+    if len(sys.argv) >= 3:
+        process_all = (sys.argv[2] == "1")
 
 
     done = []
@@ -125,7 +132,7 @@ def main():
         for itry in range(4):
 
             try:
-                if os.path.isfile(os.path.join(d, clBasename + ".aocx")):
+                if os.path.isfile(os.path.join(d, clBasename + ".aocx")) or process_all:
                           
                     fit = 'Y'
                              
@@ -134,14 +141,13 @@ def main():
                     print("Running " + d)
                     output = subprocess.check_output("./" + exeFilename + " " + progInputFile + " gpu " + str(num_runs), cwd=d, shell=True, stderr=subprocess.STDOUT) #, timeout=5)
 
-
                     for line in output.split(b'\n'):
                         line = str(line)
                         m = verif_re.search(line)
                         m2 = time_re.search(line)
 
                         if m:
-                            verif = 'P' if m.group(1) == "Passed" else 'F'
+                            verif = 'P' if m.group(1).replace("'","") == verif_text else 'F'
                         
                         if m2:
                             time = float(m2.group(1))
