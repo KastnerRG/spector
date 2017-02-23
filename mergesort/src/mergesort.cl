@@ -1,5 +1,3 @@
-#include "knobs.h"
-
 // ----------------------------------------------------------------------
 // Copyright (c) 2016, The Regents of the University of California All
 // rights reserved.
@@ -42,10 +40,10 @@
  */
 
 
+#include "knobs.h"
 
 
-// Leave the include on the first line
-//
+
 // Note: This include may cause issues with some OpenCL drivers (ie. compiles fine, but runtime result is wrong)
 // To solve it, you can copy/paste the content of the include here and include directly this .cl file in the main file,
 // but you need to uncomment the compile-time check for OpenCL compiler below.
