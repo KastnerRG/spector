@@ -366,10 +366,10 @@ void bfs_cpu(
 
 
 //---------------------------------------------
-void printUsage()
+void printUsage(const char* argv0)
 //---------------------------------------------
 {
-	cout << "Usage: " << argv[0] << " <filename> [platform] [num_runs]" << endl;
+	cout << "Usage: " << argv0 << " <filename> [platform] [num_runs]" << endl;
 }
 
 
@@ -379,14 +379,14 @@ int main(int argc, char ** argv)
 {
 	if(argc < 2)
 	{
-		printUsage();
+		printUsage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
 	else if(argc >= 2)
 	{
 		if(strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
 		{
-			printUsage();
+			printUsage(argv[0]);
 			exit(EXIT_SUCCESS);
 		}
 	}
