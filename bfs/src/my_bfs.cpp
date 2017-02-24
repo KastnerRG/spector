@@ -55,19 +55,18 @@
 #include <chrono>
 #include <algorithm>
 
-#include "bfs.h"
 #include "knobs.h"
+#include "common/include/opencl_utils.h"
+
 
 using namespace std;
+using namespace spector;
 
 
 
 //---------------------------------------------
 // Constants
 //---------------------------------------------
-
-#define CL_FILE_NAME   "bfs_fpga.cl"
-#define AOCX_FILE_NAME "bfs_fpga.aocx"
 
 #define AOCL_ALIGNMENT 64
 
@@ -101,211 +100,6 @@ struct AlignedArray
 //---------------------------------------------
 // Functions
 //---------------------------------------------
-
-
-//---------------------------------------------
-bool init_opencl(ClContext* clContext, cl_device_type device_type = CL_DEVICE_TYPE_ALL)
-//---------------------------------------------
-{
-	cout << "Setting up OpenCL..." << endl;
-
-
-	int err;
-
-	vector<cl_platform_id> platform_ids;
-	vector<cl_device_id> device_ids;
-	cl_context context;
-
-
-	// Get platform and devices
-	//
-	cl_uint num_platforms;
-	err = clGetPlatformIDs(0, NULL, &num_platforms);
-	ReturnError(checkErr(err, "Failed to get number of platforms!"));
-
-	cout << num_platforms << " platforms:" << endl;
-
-	platform_ids.resize(num_platforms);
-
-	err = clGetPlatformIDs(num_platforms, platform_ids.data(), NULL);
-	ReturnError(checkErr(err, "Failed to get platform ID!"));
-
-	for(cl_uint plat = 0; plat < num_platforms; plat++)
-	{
-		size_t sz;
-		err = clGetPlatformInfo(platform_ids[plat], CL_PLATFORM_NAME, 0, NULL, &sz);
-		ReturnError(checkErr(err, "Failed to get size of platform name!"));
-
-		char* name = new char[sz];
-		err = clGetPlatformInfo(platform_ids[plat], CL_PLATFORM_NAME, sz, name, NULL);
-		ReturnError(checkErr(err, "Failed to get platform name!"));
-
-		cout << "  - " << name << endl;
-
-
-		cl_uint num_devices;
-		clGetDeviceIDs(platform_ids[plat], CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices);
-		ReturnError(checkErr(err, "Failed to get number of devices!"));
-
-		cout << "    with " << num_devices << " device(s):" << endl;
-
-		device_ids.resize(num_devices);
-		err = clGetDeviceIDs(platform_ids[plat], CL_DEVICE_TYPE_ALL, num_devices, device_ids.data(), NULL);
-		ReturnError(checkErr(err, "Failed to get devices!"));
-
-		for(cl_uint i = 0; i < num_devices; i++)
-		{
-			size_t sz;
-			clGetDeviceInfo(device_ids[i], CL_DEVICE_NAME, 0, NULL, &sz);
-			ReturnError(checkErr(err, "Failed to get size of device name!"));
-
-			char* name = new char[sz];
-			clGetDeviceInfo(device_ids[i], CL_DEVICE_NAME, sz, name, NULL);
-			ReturnError(checkErr(err, "Failed to get device name!"));
-
-			cout << "      - " << name << endl;
-
-			delete[] name;
-		}
-
-	}
-
-
-
-
-
-
-	// Connect to a compute device
-
-	
-	for(cl_uint plat = 0; plat < num_platforms; plat++)
-	{
-		err = clGetDeviceIDs(platform_ids[plat], device_type, 1, device_ids.data(), NULL);
-		if(err == CL_SUCCESS){ break; }
-	}	
-	ReturnError(checkErr(err, "Failed to find a device!"));
-
-	{
-		size_t sz;
-		clGetDeviceInfo(device_ids[0], CL_DEVICE_NAME, 0, NULL, &sz);
-		ReturnError(checkErr(err, "Failed to get size of device name!"));
-
-		char* name = new char[sz];
-		clGetDeviceInfo(device_ids[0], CL_DEVICE_NAME, sz, name, NULL);
-		ReturnError(checkErr(err, "Failed to get device name!"));
-
-		cout << "Using " << name << endl;
-
-		delete[] name;
-	}
-
-	// Create a compute context
-	context = clCreateContext(0, 1, device_ids.data(), NULL, NULL, &err);
-	ReturnError(checkErr(err, "Failed to create a compute context!"));
-
-
-	// debug
-	{
-		clGetDeviceInfo(device_ids[0], CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(clContext->maxWorkItems), clContext->maxWorkItems, NULL);
-		cout << "Max work items: "
-				<< clContext->maxWorkItems[0] << " "
-				<< clContext->maxWorkItems[1] << " "
-				<< clContext->maxWorkItems[2] << endl;
-	}
-
-
-	// Set contexts, build kernels, and create queues/events
-
-	clContext->device = device_ids[0];
-	clContext->context = context;
-	clContext->device_type = device_type;
-
-
-
-
-	// Read the kernel file
-
-	std::ifstream file;
-	if(device_type & CL_DEVICE_TYPE_ACCELERATOR)
-	{ file.open(AOCX_FILE_NAME); }
-	else
-	{ file.open(CL_FILE_NAME); }
-	ReturnError(checkErr(file.is_open() ? CL_SUCCESS:-1, "Cannot open file"));
-
-	std::string prog(
-			std::istreambuf_iterator<char>(file),
-			(std::istreambuf_iterator<char>()));
-
-	const char* prog_source = prog.c_str();
-	const size_t prog_length = prog.size();
-
-	// Create the compute program from the source buffer
-
-	if(device_type & CL_DEVICE_TYPE_ACCELERATOR)
-	{
-		clContext->program = clCreateProgramWithBinary(clContext->context, 1, &clContext->device, &prog_length, (const unsigned char**)&prog_source, NULL, &err);
-	}
-	else
-	{
-		clContext->program = clCreateProgramWithSource(clContext->context, 1, &prog_source, NULL, &err);
-	}
-	ReturnError(checkErr(err, "Failed to create compute program!"));
-
-
-	// Build the program executable
-
-	err = clBuildProgram(clContext->program, 0, NULL, "-I .", NULL, NULL);
-	{
-		size_t logSize;
-		checkErr(clGetProgramBuildInfo(clContext->program, clContext->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize),
-				"Get builg log size");
-
-		vector<char> buildLog(logSize);
-		checkErr(clGetProgramBuildInfo(clContext->program, clContext->device, CL_PROGRAM_BUILD_LOG, logSize, buildLog.data(), NULL),
-				"clGetProgramBuildInfo");
-
-		string log(buildLog.begin(), buildLog.end());
-		std::cout
-		<< "\n----------------------Kernel build log----------------------\n"
-		<< log
-		<< "\n------------------------------------------------------------\n"
-		<< std::endl;
-	}
-	ReturnError(checkErr(err, "Failed to build program executable!"));
-
-
-	// Create kernels
-
-	int numKernels = 2;
-
-	clContext->kernels.resize(numKernels);
-
-	clContext->kernels[0] = clCreateKernel(clContext->program, "kernel1", &err);
-	ReturnError(checkErr(err, "Failed to create kernel!"));
-	clContext->kernels[1] = clCreateKernel(clContext->program, "kernel2", &err);
-	ReturnError(checkErr(err, "Failed to create kernel!"));
-
-
-
-	// Create events
-
-	clContext->events.resize(numKernels);
-
-	// Create queues
-	clContext->queues.resize(numKernels);
-	for(unsigned int i = 0; i < clContext->queues.size(); i++)
-	{
-		clContext->queues[i] = clCreateCommandQueue(clContext->context, clContext->device, CL_QUEUE_PROFILING_ENABLE, &err);
-		ReturnError(checkErr(err, "Failed to create a command queue!"));
-	}
-
-
-
-
-	return true;
-}
-
-
 
 //---------------------------------------------
 void bfs_cpu(
@@ -421,7 +215,14 @@ int main(int argc, char ** argv)
 		}
 	}
 
-	if(!init_opencl(&clContext, device_type)){ exit(EXIT_FAILURE); }
+	vector<string> kernel_names;
+	kernel_names.push_back("kernel1");
+	kernel_names.push_back("kernel2");
+
+	const char* cl_filename   = "bfs_fpga.cl";
+	const char* aocx_filename = "bfs_fpga.aocx";
+
+	if(!init_opencl(&clContext, kernel_names, device_type, cl_filename, aocx_filename)){ exit(EXIT_FAILURE); }
 
 
 

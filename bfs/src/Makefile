@@ -45,19 +45,21 @@ CL_DIR       = /opt/AMDAPPSDK-3.0
 CL_INCLUDE   = -I$(CL_DIR)/include/
 CL_LIBS      = -L$(CL_DIR)/lib/x86_64/ -lOpenCL
 
+INCLUDE = -I../..
+
 CFLAGS = -std=c++11
 
 # Targets
 .PHONY: cpu gpu fpga clean all
 
 cpu:
-	$(CC) my_bfs.cpp $(CFLAGS) $(CL_INCLUDE) $(CL_LIBS) -o $(TARGET)
+	$(CC) my_bfs.cpp $(CFLAGS) $(INCLUDE) $(CL_INCLUDE) $(CL_LIBS) -o $(TARGET)
 
 gpu: cpu
 all: cpu
 
 fpga:
-	$(CC) my_bfs.cpp $(CFLAGS) $(AOCL_INCLUDE) $(AOCL_LIBS) -o $(TARGET)
+	$(CC) my_bfs.cpp $(CFLAGS) $(INCLUDE) $(AOCL_INCLUDE) $(AOCL_LIBS) -o $(TARGET)
 
 clean:
 	rm -rf $(TARGET)
