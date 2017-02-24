@@ -42,6 +42,7 @@
 
 import os
 import subprocess
+import signal
 import re
 import sys
 
@@ -60,7 +61,8 @@ def runDesignsGPU(
         verif_text       = "Passed",                            # Verification text to check for success
         time_re          = re.compile(r'Total time: (\S+) ms'), # Regex for running time
         num_runs         = 5,
-        process_all      = False  # Process all designs?
+        process_all      = False,  # Process all designs?
+        timeout_sec      = 60
         ):
 
     done = []
@@ -122,7 +124,19 @@ def runDesignsGPU(
                     subprocess.call("make gpu > /dev/null 2>&1", cwd=d, shell=True)
                   
                     print("Running " + d)
-                    output = subprocess.check_output("./" + exeFilename + " " + progInputFile + " gpu " + str(num_runs), cwd=d, shell=True, stderr=subprocess.STDOUT) #, timeout=5)
+                    
+                    fullCommand = "./" + exeFilename + " " + progInputFile + " gpu " + str(num_runs)
+                    
+                    #output = subprocess.check_output(fullCommand, cwd=d, shell=True, stderr=subprocess.STDOUT) #, timeout=5)
+
+                    with subprocess.Popen(fullCommand, cwd=d, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) as process:
+                        try:
+                            output = process.communicate(timeout=timeout_sec)[0]
+                        except subprocess.TimeoutExpired:
+                            os.killpg(process.pid, signal.SIGINT) # send signal to the process group
+                            output = process.communicate()[0]
+
+
 
                     for line in output.split(b'\n'):
                         line = str(line)

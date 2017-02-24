@@ -1,6 +1,3 @@
-#include "knobs.h"
-
-
 // ----------------------------------------------------------------------
 // Original work Copyright 2011-2015 by Virginia Polytechnic Institute and State University
 // All rights reserved.
@@ -15,6 +12,9 @@
  * Description: Breadth-first search OpenCL benchmark.
  * Author: Quentin Gautier
  */
+
+#include "knobs.h"
+
 
 
 typedef struct
