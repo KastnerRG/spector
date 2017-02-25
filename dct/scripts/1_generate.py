@@ -34,7 +34,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 1_compile.py
+# Filename: 1_generate.py
 # Version: 1.0
 # Description: Python script to generate unique designs for the DCT benchmark.
 # Author: Quentin Gautier
@@ -44,8 +44,6 @@ import os
 import sys
 import shutil
 import subprocess
-import multiprocessing as mp
-
 
 srcFolder = "../src"
 scriptsFolder = "."
@@ -55,28 +53,11 @@ clGenScript = "dct_cl_gen.py"
 compileScripts = ["dct_synthesize" + str(i) + ".sh" for i in range(13)]
 
 
-
 def runScript(script, path):    
     subprocess.call("./" + script, cwd=path, shell=True)
     
 
-def runScriptMap(scriptpath):
-    runScript(scriptpath[0], scriptpath[1])
-
-
-
 def main():
-
-    # Get number of processors
-    num_processes = 0
-    if len(sys.argv) >= 2:
-    	num_processes = int(sys.argv[1])
-    
-    if num_processes > 0:
-    	print("Using " + str(num_processes) + " processes")
-    else:
-    	print("Using all available processes")
-
 
     print("Copying files...")
 
@@ -103,16 +84,6 @@ def main():
     runScript(clGenScript, benchmarksFolder)
     
     
-    # Compile OpenCL files
-    print("Compiling all OpenCL files...")
-    if num_processes > 0:
-    	pool = mp.Pool(num_processes)
-    else:
-    	pool = mp.Pool()
-    
-    result = pool.map_async(runScriptMap, list(zip(compileScripts, [benchmarksFolder]*len(compileScripts)))).get(31536000) # timeout of 365 days
-
-
     print("Done.")
 
 if __name__ == "__main__":

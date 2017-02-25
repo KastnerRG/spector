@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
 # rights reserved.
@@ -32,19 +34,71 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
+# Filename: 2_compile.py
+# Version: 1.0
+# Description: Python script to compile the FPGA designs for the DCT benchmark.
+# Author: Quentin Gautier
+
+
+import os
+import sys
+import subprocess
+import signal
+import multiprocessing as mp
+
+
+benchmarksFolder = "../benchmarks"
+
+compileScripts = ["dct_synthesize" + str(i) + ".sh" for i in range(13)]
 
 
 
-TARGET := $(MYOPENCL_HOST_CODE_FILE_NAME)_host
+def runScript(script, path):
+    pro = subprocess.Popen("./" + script, cwd=path, shell=True, executable="/bin/bash", preexec_fn=os.setsid)
+    try:
+        pro.wait()
+    except:
+        print(sys.exec_info()[0])
+        pro.kill()
+        #pro.terminate()
+        os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
 
-CL_DIR       = /opt/AMDAPPSDK-3.0
-CL_INCLUDE   = -I$(CL_DIR)/include/
-CL_LIBS      = $(CL_DIR)/lib/x86_64/sdk/libOpenCL.so
 
-INCLUDE = -I../..
+def runScriptMap(scriptpath):
+    runScript(scriptpath[0], scriptpath[1])
 
-all:
-	g++ $(MYOPENCL_HOST_CODE_FILE_NAME).cpp oclDCT8x8_gold.cpp $(INCLUDE) $(CL_INCLUDE) $(CL_LIBS) -o $(TARGET)
 
-clean:
-	rm -rf *_host
+
+def main():
+
+    # Get number of processors
+    num_processes = 0
+    if len(sys.argv) >= 2:
+    	num_processes = int(sys.argv[1])
+    
+    if num_processes > 0:
+    	print("Using " + str(num_processes) + " processes")
+    else:
+    	print("Using all available processes")
+
+
+    # Compile OpenCL files
+    print("Compiling all OpenCL files...")
+    if num_processes > 0:
+    	pool = mp.Pool(num_processes)
+    else:
+    	pool = mp.Pool()
+    
+    result = pool.map_async(runScriptMap, list(zip(compileScripts, [benchmarksFolder]*len(compileScripts)))).get(31536000) # timeout of 365 days
+
+
+    print("Done.")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+

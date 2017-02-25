@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
 # rights reserved.
@@ -32,19 +34,74 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
+# Filename: 3_runFPGA.py
+# Version: 1.0
+# Description: Python script to run the designs for the DCT benchmark.
+# Author: Quentin Gautier
+
+
+import os
+import sys
+import shutil
+import subprocess
+
+
+scriptsFolder    = "."
+benchmarksFolder = "../benchmarks"
+
+hostGenScript = "dct_host_gen_FPGA.py"
+hostRunScript = "run.sh"
+logicExtractScript  = "logic_util_extract.py"
+timingExtractScript = "timing_extract.py"
 
 
 
-TARGET := $(MYOPENCL_HOST_CODE_FILE_NAME)_host
 
-CL_DIR       = /opt/AMDAPPSDK-3.0
-CL_INCLUDE   = -I$(CL_DIR)/include/
-CL_LIBS      = $(CL_DIR)/lib/x86_64/sdk/libOpenCL.so
+def runScript(script, path):
+    pro = subprocess.Popen("./" + script, cwd=path, shell=True, executable="/bin/bash")
+    try:
+        pro.wait()
+    except:
+        print(sys.exec_info()[0])
+        os.killpg(os.getpgid(pro.pid), signal.SIGTERM) 
 
-INCLUDE = -I../..
 
-all:
-	g++ $(MYOPENCL_HOST_CODE_FILE_NAME).cpp oclDCT8x8_gold.cpp $(INCLUDE) $(CL_INCLUDE) $(CL_LIBS) -o $(TARGET)
+def copyFile(f, src, dst):
+    shutil.copy(
+            os.path.join(src, f),
+            os.path.join(dst, os.path.basename(f)))
 
-clean:
-	rm -rf *_host
+
+def main():
+
+    print("Copying files...")
+
+    # Copy scripts
+    for s in [hostGenScript, hostRunScript, logicExtractScript, timingExtractScript]:
+        copyFile(s, scriptsFolder, benchmarksFolder)
+
+    # Generate CPP files
+    print("Generating cpp files...")
+    runScript(os.path.basename(hostGenScript), benchmarksFolder)
+    
+    
+    # Run all programs
+    print("Running programs...")
+    runScript(os.path.basename(hostRunScript), benchmarksFolder)
+
+
+    # Extract data
+    print("Reading results...")
+    runScript(os.path.basename(logicExtractScript), benchmarksFolder)
+    runScript(os.path.basename(timingExtractScript), benchmarksFolder)
+
+    print("Done.")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+

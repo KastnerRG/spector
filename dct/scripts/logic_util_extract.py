@@ -61,87 +61,86 @@ output_file=open('logic_util.txt','w')
 out_string=''
 
 for blockdim_x in blockdim_x_pool:
-	for blockdim_y in blockdim_y_pool:
-		for simd_type in simd_type_pool:
-			if simd_type==0:
-				for simd_loc in simd_loc_pool:
-					for block_size_f in block_size_f_pool:
-						for block_unroll in block_unroll_pool:
-							for dct_unroll in dct_unroll_pool:
-								for simd_wi in simd_wi_pool:
-									for comp_u in comp_u_pool:
-										if (blockdim_x*blockdim_y<=2094) and (blockdim_y%(block_size_f*8)==0) and (blockdim_x%(block_size_f*8)==0) and (blockdim_x%simd_loc==0) and ((block_unroll==0)or(block_size_f!=1)):
-											
-                                							
-                                							input_file_name_string='dct_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'simdType'+str(simd_type)+'_'+'simdLoc'+str(simd_loc)+'_'+'blockSizeF'+str(block_size_f)+'_'+'blockU'+str(block_unroll)+'_'+'DCTU'+str(dct_unroll)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_rpt_name/acl_quartus_report.txt'
+    for blockdim_y in blockdim_y_pool:
+        for simd_type in simd_type_pool:
+            if simd_type==0:
+                for simd_loc in simd_loc_pool:
+                    for block_size_f in block_size_f_pool:
+                        for block_unroll in block_unroll_pool:
+                            for dct_unroll in dct_unroll_pool:
+                                for simd_wi in simd_wi_pool:
+                                    for comp_u in comp_u_pool:
+                                        if (blockdim_x*blockdim_y<=2094) and (blockdim_y%(block_size_f*8)==0) and (blockdim_x%(block_size_f*8)==0) and (blockdim_x%simd_loc==0) and ((block_unroll==0)or(block_size_f!=1)):
+                                            
+                                            input_file_name_string = ('dct_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'simdType'+str(simd_type)
+                                                    +'_'+'simdLoc'+str(simd_loc)+'_'+'blockSizeF'+str(block_size_f)+'_'+'blockU'+str(block_unroll)+'_'
+                                                    +'DCTU'+str(dct_unroll)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_rpt_name/acl_quartus_report.txt')
 
-				    							
 
-                                    							if os.path.isfile(input_file_name_string):
-                                        							print('Open '+input_file_name_string)
-        											input_file=open(input_file_name_string,'r')
+                                            if os.path.isfile(input_file_name_string):
+                                                print('Open '+input_file_name_string)
+                                                input_file=open(input_file_name_string,'r')
 
-        											tmp_string=input_file.readline()
-        											flag=-1
-        
-        										while(tmp_string!=''):
+                                                tmp_string=input_file.readline()
+                                                flag=-1
 
-            											if (tmp_string[0:18]=='Logic utilization:'):
-													print "found"
-													tmp_count=0
-													while(tmp_string[tmp_count]!='/'):
-														tmp_count=tmp_count+1
-													data_string=tmp_string[18:tmp_count]
-													data_string=data_string.replace(',','')
-							
-                											
+                                                while(tmp_string!=''):
 
-													out_string=out_string+str(blockdim_x)+','+str(blockdim_y)+','+ str(simd_type)+','+str(simd_loc)+','+ str(block_size_f)+','+ str(block_unroll)+','+ str(dct_unroll)+','+str(simd_wi)+','+str(comp_u)+','+data_string+'\n'
+                                                    if (tmp_string[0:18]=='Logic utilization:'):
+                                                        print "found"
+                                                        tmp_count=0
+                                                        while(tmp_string[tmp_count]!='/'):
+                                                            tmp_count=tmp_count+1
+                                                        data_string=tmp_string[18:tmp_count]
+                                                        data_string=data_string.replace(',','')
 
-            											tmp_string=input_file.readline()
-	
-	
 
-        			
-        										input_file.close()
-										
-			else:
-				for simd_loc in simd_loc_pool2:
-					for block_size_f in block_size_f_pool:
-						for block_unroll in block_unroll_pool:
-							for dct_unroll in dct_unroll_pool:
-								for simd_wi in simd_wi_pool:
-									for comp_u in comp_u_pool:
-										if (blockdim_x*blockdim_y<=2094) and (blockdim_y%(block_size_f*8*simd_loc)==0)  and (blockdim_x%(block_size_f*8)==0) and ((block_unroll==0)or(block_size_f!=1)):
-											input_file_name_string='dct_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'simdType'+str(simd_type)+'_'+'simdLoc'+str(simd_loc)+'_'+'blockSizeF'+str(block_size_f)+'_'+'blockU'+str(block_unroll)+'_'+'DCTU'+str(dct_unroll)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_rpt_name/acl_quartus_report.txt'
 
-				    							
+                                                        out_string = (out_string+str(blockdim_x)+','+str(blockdim_y)+','+ str(simd_type)
+                                                                +','+str(simd_loc)+','+ str(block_size_f)+','+ str(block_unroll)+','+ str(dct_unroll)+','+str(simd_wi)+','+str(comp_u)+','+data_string+'\n')
 
-                                    							if os.path.isfile(input_file_name_string):
-                                        							print('Open '+input_file_name_string)
-        											input_file=open(input_file_name_string,'r')
+                                                    tmp_string=input_file.readline()
 
-        											tmp_string=input_file.readline()
-        											flag=-1
-        
-        										while(tmp_string!=''):
+                                                input_file.close()
 
-            											if (tmp_string[0:18]=='Logic utilization:'):
-													tmp_count=0
-													while(tmp_string[tmp_count]!='/'):
-														tmp_count=tmp_count+1
-													data_string=tmp_string[18:tmp_count]
-													data_string=data_string.replace(',','')
-							
-                											out_string=out_string+str(blockdim_x)+','+str(blockdim_y)+','+ str(simd_type)+','+str(simd_loc)+','+ str(block_size_f)+','+ str(block_unroll)+','+ str(dct_unroll)+','+str(simd_wi)+','+str(comp_u)+','+data_string+'\n'
 
-            											tmp_string=input_file.readline()
-	
-	
+            else:
+                for simd_loc in simd_loc_pool2:
+                    for block_size_f in block_size_f_pool:
+                        for block_unroll in block_unroll_pool:
+                            for dct_unroll in dct_unroll_pool:
+                                for simd_wi in simd_wi_pool:
+                                    for comp_u in comp_u_pool:
+                                        if (blockdim_x*blockdim_y<=2094) and (blockdim_y%(block_size_f*8*simd_loc)==0)  and (blockdim_x%(block_size_f*8)==0) and ((block_unroll==0)or(block_size_f!=1)):
 
-        			
-        										input_file.close()
+                                            input_file_name_string = ('dct_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'simdType'+str(simd_type)
+                                                    +'_'+'simdLoc'+str(simd_loc)+'_'+'blockSizeF'+str(block_size_f)+'_'+'blockU'+str(block_unroll)+'_'+'DCTU'+str(dct_unroll)
+                                                    +'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_rpt_name/acl_quartus_report.txt')
+
+
+                                            if os.path.isfile(input_file_name_string):
+                                                print('Open '+input_file_name_string)
+                                                input_file=open(input_file_name_string,'r')
+
+                                                tmp_string=input_file.readline()
+                                                flag=-1
+
+                                                while(tmp_string!=''):
+
+                                                    if (tmp_string[0:18]=='Logic utilization:'):
+                                                        tmp_count=0
+                                                        while(tmp_string[tmp_count]!='/'):
+                                                            tmp_count=tmp_count+1
+                                                        data_string=tmp_string[18:tmp_count]
+                                                        data_string=data_string.replace(',','')
+
+                                                        out_string = (out_string+str(blockdim_x)+','+str(blockdim_y)+','+ str(simd_type)
+                                                                +','+str(simd_loc)+','+ str(block_size_f)+','+ str(block_unroll)+','+ str(dct_unroll)+','+str(simd_wi)+','+str(comp_u)+','+data_string+'\n')
+
+                                                    tmp_string=input_file.readline()
+
+                                                input_file.close()
 
 output_file.write(out_string)
 output_file.close()
-			
+

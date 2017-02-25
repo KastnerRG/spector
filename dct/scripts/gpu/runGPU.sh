@@ -1,3 +1,5 @@
+#/bin/bash
+
 M=1024
 
 num_design=0
@@ -32,11 +34,10 @@ do
 
 									aocx_file_name=""
 									aocx_file_name+=$HOST_CODE_FILE_NAME
-									aocx_file_name+=".aocx"
-									if [ -f ./$aocx_file_name ]
+									aocx_file_name+=".cl"
+									#if [ -f ./$aocx_file_name ]
+									if true
 									then
-
-
 										host_program_name=""
 										host_program_name+=$HOST_CODE_FILE_NAME
 										host_program_name+="_host"
@@ -46,7 +47,7 @@ do
 										echo $host_program_name >> run_results.txt
 										make
 										#run host program
-										aocl program $aocx_file_name
+										#aocl program $aocx_file_name
 										./$host_program_name >> run_results.txt
 									fi
 								done
