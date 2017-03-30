@@ -61,12 +61,13 @@ FULL_UNROLL = -1 # A constant for fully unrolling a loop
 def createFolders(
         finalCombinations,         # Combinations of knobs
         templateFilepath,          # Knobs template file
-        kernelFilename,            # Kernel file to copy *without the first line* 
+        kernelFilename,            # Kernel file to copy 
         dirToCopy,                 # Directory containing the source code                                                                    
         outRootPath,               # Name of output directory where all folders are generated
         outBasename,               # Base name of generated folders
         outKnobFilename,           # Name of generated knob file
-        logFilename = "params.log" # Log file to copy useful information
+        logFilename = "params.log",# Log file to copy useful information
+        outKernelSubfolder = ""    # Kernel will be copied into 'outRootPath/outBasenameX/outKernelSubfolder/'
         ):
 
     logFile = open(logFilename, 'wt')
@@ -93,7 +94,7 @@ def createFolders(
         copiedDir = os.path.join(outRootPath, outBasename) + str(num)
         shutil.copytree(dirToCopy, copiedDir, True)
 
-        outKernelPath = os.path.join(copiedDir, os.path.basename(kernelFilename))
+        outKernelPath = os.path.join(copiedDir, outKernelSubfolder, os.path.basename(kernelFilename))
         outKnobPath   = os.path.join(copiedDir, outKnobFilename)
 
 

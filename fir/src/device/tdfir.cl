@@ -1,5 +1,3 @@
-#include "parameters.h"
-
 // ----------------------------------------------------------------------
 // Copyright (c) 2016, The Regents of the University of California All
 // rights reserved.
@@ -41,6 +39,8 @@
  * Author (modifications): Quentin Gautier
  * Note: This work is based on the Altera OpenCL FIR filter example.
  */
+
+#include "parameters.h"
 
 
 

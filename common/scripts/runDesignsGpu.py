@@ -117,9 +117,11 @@ def runDesignsGPU(
         for itry in range(4):
 
             try:
-                if os.path.isfile(os.path.join(d, clBasename + ".aocx")) or process_all:
+                aocx_exists = os.path.isfile(os.path.join(d, clBasename + ".aocx"))
+
+                if aocx_exists or process_all:
                           
-                    fit = 'Y'
+                    fit = 'Y' if aocx_exists else 'N'
                              
                     subprocess.call("make gpu > /dev/null 2>&1", cwd=d, shell=True)
                   
