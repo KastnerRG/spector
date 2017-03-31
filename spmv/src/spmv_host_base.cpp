@@ -45,15 +45,19 @@
 #include <getopt.h>
 #include <assert.h>
 #include <errno.h>
-#include "CL/opencl.h"
+#include <string.h>
 #include "my_spmv_common.h"
 
 #include "timer.h"
 
+#include "../../common/include/opencl_utils.h"
 
 #define MAX_SOURCE_SIZE 10000000
 
 #define NUM_REP 1000
+
+using namespace spector;
+
 
 
 int main(int argc, char** argv)
@@ -93,132 +97,53 @@ int main(int argc, char** argv)
 		y_host[i] = ((float)i)*0.016;
 	}
 
-	
-	///init cl
-	cl_int error;
-   	cl_platform_id platform_id;
-   	cl_device_id device_id;
-
-	cl_context context;
-   	cl_command_queue command_queue;
-	cl_program program;
-	cl_kernel kernel;
-
-   	platform_id = NULL;
-   	device_id = NULL;
-
-   	cl_uint ret_num_devices;
-   	cl_uint ret_num_platforms;
-
-  	context = NULL;
-   	command_queue = NULL;
-   	program = NULL;
-
-   	
-   	kernel = NULL;
-   	
-   
 
    	GET_TIME_INIT(2);
-   	char fileName[] = CL_FILE_NAME;
-   	char *source_str;
-   	size_t source_size;
 
 
 
-   
-   	//get platform IDs
-   	error = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Get Platform IDs failed:%d\n",error);
-        	return 1;
-   	}
+	cl_int error;
 
-   	//get device IDs
-   	error = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_DEFAULT, 1, &device_id, &ret_num_devices);
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Get Device IDs failed:%d\n",error);
-        	return 1;
-   	}
+	// Initialize OpenCL
+	ClContext clContext;
 
-   	//get the device name
-   	char device_name[1024];
-   	error=clGetDeviceInfo(device_id,CL_DEVICE_NAME,1024,device_name,NULL);
+	cl_device_type device_type = CL_DEVICE_TYPE_ACCELERATOR;
 
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Get Device Info failed:%d\n",error);
-        	return 1;
-   	}
-   	printf("The device used is:%s\n",device_name);
-
-   	//create context
-   	context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &error);
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Create context failed:%d\n",error);
-        	return 1;
-   	}
-
-   	//create command queue
-   	command_queue = clCreateCommandQueue(context, device_id, 0, &error);
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Create command queue failed:%d\n",error);
-        	return 1;
-   	}
+	if(argc >= 3)
+	{
+		if(strcmp(argv[2], "fpga") == 0)
+		{
+			device_type = CL_DEVICE_TYPE_ACCELERATOR;
+		}
+		else if(strcmp(argv[2], "gpu") == 0)
+		{
+			device_type = CL_DEVICE_TYPE_GPU;
+		}
+		else if(strcmp(argv[2], "cpu") == 0)
+		{
+			device_type = CL_DEVICE_TYPE_CPU;
+		}
+		else
+		{
+			printf("Warning! Device not recognized, using FPGA");
+		}
+	}
 
 
-	char file_name[] = CL_FILE_NAME;
-  	 //printf("Checkpoint before seek \n");
-   	fp = fopen(file_name, "r");
-   	fseek(fp, 0, SEEK_END);
-   	//printf("Checkpoint after seek \n");
-   
-   	size_t binary_length = ftell(fp);
-   	const unsigned char *binary = (unsigned char*) malloc(sizeof(unsigned char) * binary_length);
-   	assert(binary && "Malloc failed");
-   	//printf("Checkpoint after malloc binary\n");
-   	rewind(fp);
-   	//printf("Checkpoint before fread the binary\n");
-   	if (fread((void *)binary, binary_length, 1, fp) == 0)
-   	{
-     		printf("Failed to read .aocx.\n");
-     		return -10000;
-   	}
-  	fclose(fp);
+	std::vector<std::string> kernel_names;
+	kernel_names.push_back("csr");
 
-   	//create program
-	cl_int errnum, status;
-   	program = clCreateProgramWithBinary(context, 1, &device_id, &binary_length, (const unsigned char **)&binary, &status, &errnum);
+	const char* cl_filename   = CL_FILE_NAME;
+	const char* aocx_filename = AOCX_FILE_NAME;
 
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Create program failed:%d\n",error);
-        	return 1;
-   	}
+	if(!init_opencl(&clContext, kernel_names, device_type, cl_filename, aocx_filename, false)){ exit(EXIT_FAILURE); }
+
+	cl_context context             = clContext.context;
+	cl_command_queue command_queue = clContext.queues[0];
+	cl_program program             = clContext.program;
+	cl_kernel kernel         = clContext.kernels[0];
 
 
-   	error = clBuildProgram (program,
-  		0,
-  		NULL,
-  		NULL,
-  		NULL,
-  		NULL);
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Build program failed:%d\n",error);
-        	return 1;
-   	}
-
-	kernel = clCreateKernel(program, "csr", &error);
-   	if (error != CL_SUCCESS) 
-   	{
-		printf("Create kernel %d failed:%d\n",1,error);
-        	return 1;
-   	}
 
 	//cl memory
 	cl_mem * csr_ap = (cl_mem*) malloc(sizeof(cl_mem)*num_matrices);

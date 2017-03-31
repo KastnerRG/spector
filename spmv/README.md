@@ -13,12 +13,10 @@ The vectors _x_ and _y_ are simple contiguous arrays of floating-point values.
 
 ## Usage
 
-* `cl_gen` contains a python script to generate all the OpenCL designs, and bash scripts to compile them with AOCL.
-* `host_gen_FPGA` contains a python script to generate the source code that runs each design.
+* `src` contains the base source code for the host and device, along with a few scripts.
+* `scripts` contains the high-level scripts to generate designs, compile and run them.
+* `benchmarks` is where the high-level scripts generate the designs.
 * `csr_gen` contains a program to generate matrices in CSR format.
-* `FPGA_run` contains files necessary to run the designs, including a bash script that compiles and runs all the programs.
-
-All the generated designs and source code, and all the data, Makefile and scripts should be in the same directory.
 
 ## Algorithm
 

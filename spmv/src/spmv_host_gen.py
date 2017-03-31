@@ -59,7 +59,9 @@ for blockdim in blockdim_pool:
                                         host_string='#define BLOCKDIM '+str(blockdim)+'\n\n'
                                         host_string=host_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ str(comp_u)+','+str(unroll_f)+','+str(vect_w)+', run_time_total/NUM_REP)\n\n'
 
-                                        host_string=host_string+'#define CL_FILE_NAME "spmv_b'+str(blockdim)+'_compu'+ str(comp_u)+'_unrollf'+str(unroll_f)+'_vectw'+str(vect_w)+'.aocx"\n\n'
+                                        filename_base='"spmv_b'+str(blockdim)+'_compu'+ str(comp_u)+'_unrollf'+str(unroll_f)+'_vectw'+str(vect_w)
+                                        host_string=host_string+'#define AOCX_FILE_NAME '+filename_base+'.aocx"\n\n'
+                                        host_string=host_string+'#define CL_FILE_NAME '+filename_base+'.cl"\n\n'
 
                 
                                         tmp_string=input_base_file.readline()
