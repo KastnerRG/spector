@@ -1,3 +1,5 @@
+#!/bin/bash
+
 device="fpga"
 run_all=0
 

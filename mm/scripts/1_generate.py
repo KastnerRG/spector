@@ -34,7 +34,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 1_copy.py
+# Filename: 1_generate.py
 # Version: 1.0
 # Description: Python script to generate unique designs for the MM benchmark.
 # Author: Quentin Gautier

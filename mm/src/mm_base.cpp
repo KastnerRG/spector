@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			printf("Warning! Device not recognized, using CPU");
+			printf("Warning! Device not recognized, using FPGA");
 		}
 	}
 
