@@ -97,6 +97,7 @@ for comp_u in comp_u_pool:
                                 filename_base='"sobel_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)
                                 source_string=source_string+'#define AOCX_FILE_NAME '+filename_base+'.aocx"\n\n'
                                 source_string=source_string+'#define CL_FILE_NAME '+filename_base+'.cl"\n\n'
+                                source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim_x)+','+ str(blockdim_y)+','+ str(subdim_x)+','+str(subdim_y)+','+str(simd_x)+','+str(simd_y)+','+str(simd_wi)+','+str(comp_u)+', ELAPSED_TIME_MS(1, 0))\n\n'
 
 
                                 tmp_string=input_base_file.readline()
@@ -150,6 +151,7 @@ for comp_u in comp_u_pool:
                                 filename_base='"sobel_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)
                                 source_string=source_string+'#define AOCX_FILE_NAME '+filename_base+'.aocx"\n\n'
                                 source_string=source_string+'#define CL_FILE_NAME '+filename_base+'.cl"\n\n'
+                                source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim_x)+','+ str(blockdim_y)+','+ str(subdim_x)+','+str(subdim_y)+','+str(simd_x)+','+str(simd_y)+','+str(simd_wi)+','+str(comp_u)+', ELAPSED_TIME_MS(1, 0))\n\n'
 
 
                             

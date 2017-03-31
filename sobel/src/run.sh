@@ -18,7 +18,7 @@ then
 fi
 
 
-
+> run_results.txt
 
 num_design=0
 

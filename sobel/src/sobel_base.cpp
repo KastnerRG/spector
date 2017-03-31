@@ -265,6 +265,7 @@ int main(int argc, char *argv[])
 
 
 	printf("Run-time is:%f ms \n",ELAPSED_TIME_MS(1, 0));
+	print_rsl;
 
 	error = clReleaseMemObject(image_in_dev);
 	if (error != CL_SUCCESS) 
