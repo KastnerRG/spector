@@ -1,5 +1,3 @@
-#include "knobs.h"
-
 // ----------------------------------------------------------------------
 // Copyright (c) 2016, The Regents of the University of California All
 // rights reserved.
@@ -41,6 +39,8 @@
  * Author: Quentin Gautier
  * Note: This work is partially based on kinfu from the Point Cloud Library.
  */
+
+#include "knobs.h"
 
 
 

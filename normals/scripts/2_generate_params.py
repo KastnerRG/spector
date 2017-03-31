@@ -40,37 +40,21 @@
 #              estimation benchmark.
 # Author: Quentin Gautier
 
-
-import math
 import itertools
-import os.path
 import sys
-import shutil
+
+sys.path.append("../../common/scripts")
+from generateDesigns import createFolders
 
 
-##############
-# README
-##############
-# This script copies the folder given by 'dirToCopy' into multiple design folders.
-# Then it opens and parses the given template knob file.
-# Then it writes the multiple resulting knob files into the design folders.
-# Then it opens the given kernel file, reads it into memory, and writes a new kernel file in the design folders with:
-#    - At the top, the content of the knob file
-#    - followed by the content of the original kernel without its first line.
-#
-# The directory to copy should contain links to the host code and the Makefile.
-# The directory to copy MUST NOT contain links to the knob file or kernel file.
-##############
+templateFilepath = "../src/knobs.h.template"  # Knobs template file
+kernelFilename   = "../src/normals.cl"        # Kernel file to copy
+dirToCopy        = "../benchmarks/basefolder" # Directory containing the source code
 
-
-inFilepath     = "../src/knobs.h.template"  # Knobs template file
-kernelFilename = "../src/normals.cl"        # Kernel file to copy *without the first line* 
-dirToCopy      = "../benchmarks/basefolder" # Directory containing the source code
-outRootPath    = "../benchmarks"            # Name of output directory where all folders are generated
-
-outBasename    = "normals_design"           # Base name of generated folders
-outFilename    = "knobs.h"                  # Name of generated knob file
-logFilename    = "params.log"               # Log file to copy useful information
+outRootPath     = "../benchmarks"            # Name of output directory where all folders are generated
+outBasename     = "normals_design"           # Base name of generated folders
+outKnobFilename = "knobs.h"                  # Name of generated knob file
+logFilename     = "params.log"               # Log file to copy useful information
 
 
 # ***************************************************************************
@@ -127,75 +111,6 @@ def removeCombinations(combs):
 
 
 
-def createFolders(finalCombinations):
-
-    if not os.path.isfile(inFilepath):
-        print("File " + inFilepath + " does not exists.")
-        sys.exit(1)
-
-
-    logFile = open(logFilename, 'wt')
-
-
-    for (num, values) in enumerate(finalCombinations):
-
-        if(num % 1000) == 0:
-            percent = float(num) / len(finalCombinations) * 100.0
-            print("[" + str(int(percent)) + "%]")
-
-        strValues = [' ' if v==FULL_UNROLL else str(v) for v in values]
-
-        copiedDir = os.path.join(outRootPath, outBasename) + str(num)
-        shutil.copytree(dirToCopy, copiedDir, True)
-
-        outPath = os.path.join(copiedDir, outFilename)
-        outKernelPath = os.path.join(copiedDir, os.path.basename(kernelFilename))
-
-
-        # Read kernel file and remove the first line
-        kernelToCopy = ""
-        with open(kernelFilename, "rt") as kin:
-            kernel = kin.read().split('\n')[1:]
-            kernelToCopy = '\n'.join(kernel)
-
-
-
-        with open(outPath, "wt") as fout, open(outKernelPath, "wt") as kout:
-            with open(inFilepath, "rt") as fin:
-                for line in fin:
-
-                    newline = line
-
-                    for (i, replace) in reversed(list(enumerate(strValues))):
-
-                        text = '%' + str(i+1)
-                        newline = newline.replace(text, replace)
-
-                    fout.write(newline)
-                    kout.write(newline)
-
-                kout.write(kernelToCopy)
-
-
-        logFile.write(copiedDir + " " + ' '.join(map(str, values)) + "\n")
-
-
-
-#def writeParams(inFilepath, outFilename, combinations):
-#    inFile = open(inFilepath, 'rt')
-#    outFile = open(outFilename, 'wt')
-#
-#
-#    for i, line in enumerate(inFile):
-#        values = line.split()
-#        num = int(values[0])
-#
-#        comb = combinations[num]
-#
-#
-#        outFile.write(' '.join(values) + ' ' + str(comb) + "\n")
-
-
 
 
 
@@ -212,11 +127,17 @@ def main():
     print("vs " + str(len(allCombinations)))
 
 
-    #writeParams("small.txt", "small_params.txt", finalCombinations)
-    #writeParams("big.txt", "big_params.txt", finalCombinations)
 
     if doCreateFolders == 1:
-        createFolders(finalCombinations)
+        createFolders(
+                finalCombinations,
+                templateFilepath,
+                kernelFilename,
+                dirToCopy,
+                outRootPath,
+                outBasename,
+                outKnobFilename,
+                logFilename)
     else:
         print("\nNote: To actually create the folders, run:\n" + sys.argv[0] + " 1\n")
 
