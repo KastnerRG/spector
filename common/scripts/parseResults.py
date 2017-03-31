@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
 # rights reserved.
@@ -34,63 +32,44 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 3_run.py
+# Filename: parseResults.py
 # Version: 1.0
-# Description: Python script to run the SPMV benchmarks.
+# Description: Python script to parse the results of some benchmarks.
 # Author: Quentin Gautier
 
 
-import os
-import sys
-import shutil
-import subprocess
+def parseRunScriptResults(in_filename, num_knobs, design_id_start_text, results_start_text):
+    """
+    Only works for DCT, MM, Sobel, SPMV
+    """
 
-benchmarksFolder = "../benchmarks"
+    csv_text = ""
+    
+    with open(in_filename, 'rt') as in_file:
 
-hostGenScript         = "spmv_host_gen.py"
-runProgramScript      = "run.sh"
-resultsFilename       = "run_results.txt"
-outputResultsFilename = "results.csv"
+        csv_text += "ID,"
+        csv_text += ",".join(["knob_" + str(i) for i in range(num_knobs)])
+        csv_text += ",time,pass\n"
 
+        design_id = ""
+        results   = ""
+        verify    = ""
 
-def runScript(script, path):
-    subprocess.call("./" + script, cwd=path, shell=True)
+        for line in in_file:
+            
+            if line.startswith(design_id_start_text):
+                design_id = line.strip()
+                results   = ""
+                verify    = ""
+            elif line.lower().startswith("pass"):
+                verify = "P"
+            elif line.lower().startswith("fail"):
+                verify = "F"
+            elif line.startswith(results_start_text):
+                results = line.replace(results_start_text, "", 1).strip()
+                
+                csv_text += design_id + "," + "".join(results.split()) + "," + verify + "\n"
 
-
-def main():
-
-    device = "fpga"
-
-    if len(sys.argv) >= 2:
-        device = sys.argv[1]
-
-    print("Using " + device + " device.")
-    print("( Usage: " + sys.argv[0] + " <fpga|gpu|gpu_all> )\n")
-
-    outputFilename = device + "_" + outputResultsFilename
-
-    # Generate host files
-    print("Generating host files...")
-    runScript(hostGenScript, benchmarksFolder)
-
-    # Run host files
-    print("Running programs...")
-    runScript(runProgramScript + " " + device, benchmarksFolder)
-
-    # Copy results file to current directory
-    shutil.copy(os.path.join(benchmarksFolder, resultsFilename), resultsFilename)
-
-    # Parse results file and output
-    print("")
-    runScript("parse_results.py " + resultsFilename + " " + outputFilename, ".")
-
-    print("Done.")
-
-if __name__ == "__main__":
-    main()
-
-
-
-
+    return csv_text
 
 

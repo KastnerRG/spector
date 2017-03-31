@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
@@ -34,63 +34,41 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 3_run.py
+# Filename: parse_results.py
 # Version: 1.0
-# Description: Python script to run the SPMV benchmarks.
+# Description: Python script to parse the resulting file of the run.sh script.
 # Author: Quentin Gautier
 
 
-import os
+
 import sys
-import shutil
-import subprocess
 
-benchmarksFolder = "../benchmarks"
+sys.path.append("../../common/scripts")
+from parseResults import parseRunScriptResults
 
-hostGenScript         = "spmv_host_gen.py"
-runProgramScript      = "run.sh"
-resultsFilename       = "run_results.txt"
-outputResultsFilename = "results.csv"
-
-
-def runScript(script, path):
-    subprocess.call("./" + script, cwd=path, shell=True)
 
 
 def main():
+    
+    if len(sys.argv) < 2:
+        print("Usage: " + sys.argv[0] + " <filename> [output_filename]")
+        sys.exit(1)
 
-    device = "fpga"
+    filename = sys.argv[1]
 
-    if len(sys.argv) >= 2:
-        device = sys.argv[1]
+    out_filename = ""
 
-    print("Using " + device + " device.")
-    print("( Usage: " + sys.argv[0] + " <fpga|gpu|gpu_all> )\n")
+    csv = parseRunScriptResults(filename, num_knobs=4, design_id_start_text="spmv_", results_start_text=" ")
 
-    outputFilename = device + "_" + outputResultsFilename
+    if len(sys.argv) >= 3:
+        out_filename = sys.argv[2]
+        with open(out_filename, 'wt') as out_file:
+            out_file.write(csv)
 
-    # Generate host files
-    print("Generating host files...")
-    runScript(hostGenScript, benchmarksFolder)
+    print(csv)
 
-    # Run host files
-    print("Running programs...")
-    runScript(runProgramScript + " " + device, benchmarksFolder)
 
-    # Copy results file to current directory
-    shutil.copy(os.path.join(benchmarksFolder, resultsFilename), resultsFilename)
-
-    # Parse results file and output
-    print("")
-    runScript("parse_results.py " + resultsFilename + " " + outputFilename, ".")
-
-    print("Done.")
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 
