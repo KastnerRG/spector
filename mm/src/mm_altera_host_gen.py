@@ -57,15 +57,15 @@ for comp_u in [1,2,4]:
                             flag1=M%(blockdim*subdim_x*simd_x)
                             flag2=M%(blockdim*subdim_y*simd_y)
                             flag3=blockdim%simd_wi
-                               
+
                             if unroll_sel ==1:
                                 flag4=blockdim%unroll_f
                             else:
                                 flag4=subdim_y%unroll_f
-                               
+
                             flag5=1 if unroll_f*subdim_x*subdim_y*simd_x*simd_y*simd_wi*comp_u>256 else 0
                             flag6=1 if blockdim*blockdim*subdim_y*subdim_x*simd_x*simd_y>1024 else 0
-                            
+
                             if flag1==0 and flag2==0 and flag3==0 and flag4==0 and flag5==0 and flag6==0:
                                 rep_flag=0
                                 for tmp_setting in param_setting:
@@ -80,14 +80,14 @@ for comp_u in [1,2,4]:
                                     if unroll_sel==1:
                                         source_file_name='mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollb'+str(unroll_f)+'.cpp'
 
-					
+
                                     else:
                                         source_file_name='mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollp'+str(unroll_f)+'.cpp'
 
-					
+
 
                                     base_file_name='mm_base.cpp'
-                                    
+
 
                                     input_base_file=open(base_file_name,'r')
                                     output_source_file=open(source_file_name,'w') 
@@ -95,25 +95,40 @@ for comp_u in [1,2,4]:
 
 
                                     source_string='#define M '+str(M)+'\n\n'
-            
+
                                     source_string=source_string+'#define BLOCKDIM '+str(blockdim)+'\n'
                                     source_string=source_string+'#define SUBDIM_X '+str(subdim_x)+'\n'
                                     source_string=source_string+'#define SUBDIM_Y '+str(subdim_y)+'\n\n'
                                     source_string=source_string+'#define SIMD_X '+str(simd_x)+'\n'
                                     source_string=source_string+'#define SIMD_Y '+str(simd_y)+'\n\n'
-                                    
+
                                     if unroll_sel==1:
-                                        source_string=source_string+'#define CL_FILE_NAME '+'"mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollb'+str(unroll_f)+'.aocx"\n\n'
-					source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d,  %d, %f\\n",'+str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(0)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
+                                        filename_base='"mm_'+'b'+str(blockdim)+'_'+ \
+                                                'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+ \
+                                                'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollb'+str(unroll_f)
+
+                                        source_string=source_string+'#define AOCX_FILE_NAME '+ filename_base + '.aocx"\n\n'
+
+                                        source_string=source_string+'#define CL_FILE_NAME '+ filename_base + '.cl"\n\n'
+
+                                        source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d,  %d, %f\\n",'+ \
+                                                str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+ \
+                                                ','+str(0)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
 
 
                                     else:
-                                        source_string=source_string+'#define CL_FILE_NAME '+'"mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollp'+str(unroll_f)+'.aocx"\n\n'
-					
-				    	source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(1)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
+                                        filename_base='"mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+ \
+                                                '_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollp'+str(unroll_f)
+
+                                        source_string=source_string+'#define AOCX_FILE_NAME '+filename_base+'.aocx"\n\n'
+                                        source_string=source_string+'#define CL_FILE_NAME '+filename_base+'.cl"\n\n'
+
+                                        source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ \
+                                                str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(1)+','+str(unroll_f)+ \
+                                                ', ELAPSED_TIME_MS(1, 0)/100)\n\n'
 
                                     tmp_string=input_base_file.readline()
-                                    
+
                                     while (tmp_string!=''):
                                         source_string=source_string+tmp_string
                                         tmp_string=input_base_file.readline()
@@ -121,8 +136,8 @@ for comp_u in [1,2,4]:
                                     input_base_file.close()
                                     output_source_file.write(source_string)
                                     output_source_file.close()
-                                
-                                    
+
+
 #subdim_x simd_y
 simd_x=1
 subdim_y=1
@@ -136,15 +151,15 @@ for comp_u in [1,2,4]:
                             flag1=M%(blockdim*subdim_x*simd_x)
                             flag2=M%(blockdim*subdim_y*simd_y)
                             flag3=blockdim%simd_wi
-                               
+
                             if unroll_sel ==1:
                                 flag4=blockdim%unroll_f
                             else:
                                 flag4=subdim_x%unroll_f
-                               
+
                             flag5=1 if unroll_f*subdim_x*subdim_y*simd_x*simd_y*simd_wi*comp_u>256 else 0
                             flag6=1 if blockdim*blockdim*subdim_y*subdim_x*simd_x*simd_y>1024 else 0
-                            
+
                             if flag1==0 and flag2==0 and flag3==0 and flag4==0 and flag5==0 and flag6==0:
                                 rep_flag=0
                                 for tmp_setting in param_setting:
@@ -161,7 +176,7 @@ for comp_u in [1,2,4]:
                                         source_file_name='mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollp'+str(unroll_f)+'.cpp'
 
                                     base_file_name='mm_base.cpp'
-                                    
+
 
                                     input_base_file=open(base_file_name,'r')
                                     output_source_file=open(source_file_name,'w') 
@@ -169,7 +184,7 @@ for comp_u in [1,2,4]:
 
 
                                     source_string='#define M '+str(M)+'\n\n'
-            
+
                                     source_string=source_string+'#define BLOCKDIM '+str(blockdim)+'\n'
                                     source_string=source_string+'#define SUBDIM_X '+str(subdim_x)+'\n'
                                     source_string=source_string+'#define SUBDIM_Y '+str(subdim_y)+'\n\n'
@@ -178,17 +193,17 @@ for comp_u in [1,2,4]:
 
                                     if unroll_sel==1:
                                         source_string=source_string+'#define CL_FILE_NAME '+'"mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollb'+str(unroll_f)+'.aocx"\n\n'
-					source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(0)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
+                                        source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(0)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
 
 
                                     else:
                                         source_string=source_string+'#define CL_FILE_NAME '+'"mm_'+'b'+str(blockdim)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'_'+'unrollp'+str(unroll_f)+'.aocx"\n\n'
-					
-				    	source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(1)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
+
+                                        source_string=source_string+'#define print_rsl printf("dse result:\\n %d, %d, %d, %d, %d, %d, %d, %d, %d, %f\\n",'+str(blockdim)+','+ str(subdim_x)+','+str(subdim_y)+','+ str(simd_x)+','+ str(simd_y)+','+ str(simd_wi)+','+str(comp_u)+','+str(1)+','+str(unroll_f)+', ELAPSED_TIME_MS(1, 0)/100)\n\n'
 
 
                                     tmp_string=input_base_file.readline()
-                                    
+
                                     while (tmp_string!=''):
                                         source_string=source_string+tmp_string
                                         tmp_string=input_base_file.readline()

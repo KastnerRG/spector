@@ -12,11 +12,9 @@ The matrices are simply stored in contiguous arrays of float values.
 
 ## Usage
 
-* `cl_gen` contains a python script to generate all the OpenCL designs, and bash scripts to compile them with AOCL.
-* `host_gen_FPGA` contains a python script to generate the source code that runs each design.
-* `FPGA_run` contains files necessary to run the designs, including a bash script that compiles and runs all the programs.
-
-All the generated designs and source code, and all the data, Makefile and scripts should be in the same directory.
+* `src` contains the base source code for the host and device, along with a few scripts.
+* `scripts` contains the high-level scripts to generate designs, compile and run them.
+* `benchmarks` is where the high-level scripts generate the designs.
 
 ## Algorithm
 
