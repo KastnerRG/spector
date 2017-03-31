@@ -1,7 +1,24 @@
-make clean
+#!/bin/bash
 
 W=1920
 H=1080
+
+device="fpga"
+run_all=0
+
+# Run with "gpu" or "gpu_all" to run the programs on GPU instead of FPGA
+
+if [ "$1" == "gpu_all" ]
+then
+	device="gpu"
+	run_all=1
+elif [ "$1" == "gpu" ]
+then
+	device="gpu"
+fi
+
+
+
 
 num_design=0
 
@@ -29,7 +46,7 @@ do
 							aocx_file_name=""
 							aocx_file_name+=$HOST_CODE_FILE_NAME
 							aocx_file_name+=".aocx"
-							if [ -f ./$aocx_file_name ]
+							if [ -f ./$aocx_file_name ] || [ $run_all -eq 1 ]
 							then
 								host_program_name=""
 								host_program_name+=$HOST_CODE_FILE_NAME
@@ -38,11 +55,16 @@ do
 								#echo "design number:" >> run_results.txt
 								#echo $num_design >> run_results.txt
 								echo $host_program_name >> run_results.txt
-								make
+								
+								make $device
+
 								#run host program
-								aocl program $aocx_file_name
+								if [ "$device" == "fpga" ]
+								then
+									aocl program $aocx_file_name
+								fi
 							
-								./$host_program_name >> run_results.txt
+								./$host_program_name $device >> run_results.txt
 							fi
 						fi
 					done
@@ -77,7 +99,7 @@ do
 							aocx_file_name=""
 							aocx_file_name+=$HOST_CODE_FILE_NAME
 							aocx_file_name+=".aocx"
-							if [ -f ./$aocx_file_name ]
+							if [ -f ./$aocx_file_name ] || [ $run_all -eq 1 ]
 							then
 								
 
@@ -88,11 +110,15 @@ do
 								#echo "design number:" >> run_results.txt
 								#echo $num_design >> run_results.txt
 								echo $host_program_name >> run_results.txt
-								make
+								
+								make $device
+								
 								#run host program
-								aocl program $aocx_file_name
-							
-								./$host_program_name >> run_results.txt
+								if [ "$device" == "fpga" ]
+								then
+									aocl program $aocx_file_name
+								fi
+								./$host_program_name $device >> run_results.txt
 							fi
 						fi
 					done

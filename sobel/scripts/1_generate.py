@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
 # rights reserved.
@@ -32,17 +34,52 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
+# Filename: 1_generate.py
+# Version: 1.0
+# Description: Python script to generate unique designs for the Sobel benchmark.
+# Author: Quentin Gautier
 
 
-TARGET := $(MYOPENCL_HOST_CODE_FILE_NAME)_host
+import os
+import sys
+import shutil
+import subprocess
 
-AOCL_COMPILE_CONFIG=$(shell aocl compile-config)
-AOCL_LINK_CONFIG=$(shell aocl link-config)
+
+srcFolder = "../src"
+benchmarksFolder = "../benchmarks"
+
+clGenScript = "sobel_code_gen.py"
+
+def runScript(script, path):    
+    subprocess.call("./" + script, cwd=path, shell=True)
 
 
-all:
-	g++ $(MYOPENCL_HOST_CODE_FILE_NAME).cpp $(AOCL_COMPILE_CONFIG) $(AOCL_LINK_CONFIG) -o $(TARGET) -DVERBOSE=$(VERBOSE_LEVEL)
+def main():
 
-clean:
-	rm $(TARGET)
+    print("Copying files...")
+
+    # Copy source files
+    for f in os.listdir(srcFolder):
+        if os.path.isfile(os.path.join(srcFolder, f)):
+            shutil.copy(
+                    os.path.join(srcFolder, f),
+                    os.path.join(benchmarksFolder, f))
+
+
+    # Generate OpenCL files
+    print("Generating OpenCL files...")
+    runScript(clGenScript, benchmarksFolder)
+
+
+    print("Done.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
 

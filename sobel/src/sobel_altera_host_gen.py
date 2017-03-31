@@ -34,7 +34,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: sobel_sw_host_code_gen.py
+# Filename: sobel_altera_host_gen.py
 # Version: 1.0
 # Description: Python script to generate host programs that run the OpenCL designs.
 # Author: Pingfan Meng
@@ -94,7 +94,9 @@ for comp_u in comp_u_pool:
                                 source_string=source_string+'#define SIMD_X '+str(simd_x)+'\n'
                                 source_string=source_string+'#define SIMD_Y '+str(simd_y)+'\n\n'
 
-                                source_string=source_string+'#define CL_FILE_NAME '+'"sobel_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'.cl"\n\n'
+                                filename_base='"sobel_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)
+                                source_string=source_string+'#define AOCX_FILE_NAME '+filename_base+'.aocx"\n\n'
+                                source_string=source_string+'#define CL_FILE_NAME '+filename_base+'.cl"\n\n'
 
 
                                 tmp_string=input_base_file.readline()
@@ -145,7 +147,9 @@ for comp_u in comp_u_pool:
                                 source_string=source_string+'#define SIMD_X '+str(simd_x)+'\n'
                                 source_string=source_string+'#define SIMD_Y '+str(simd_y)+'\n\n'
 
-                                source_string=source_string+'#define CL_FILE_NAME '+'"sobel_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)+'.cl"\n\n'
+                                filename_base='"sobel_'+'bx'+str(blockdim_x)+'_'+'by'+str(blockdim_y)+'_'+'subx'+str(subdim_x)+'_'+'suby'+str(subdim_y)+'_'+'simdx'+str(simd_x)+'_'+'simdy'+str(simd_y)+'_'+'simdwi'+str(simd_wi)+'_'+'compu'+str(comp_u)
+                                source_string=source_string+'#define AOCX_FILE_NAME '+filename_base+'.aocx"\n\n'
+                                source_string=source_string+'#define CL_FILE_NAME '+filename_base+'.cl"\n\n'
 
 
                             

@@ -12,12 +12,9 @@ The input image is an array of unsigned integers, each representing a pack of 8-
 
 ## Usage
 
-* `cl_gen` contains a python script to generate the final OpenCL design files from a base file.
-* `host_gen_FPGA` contains a python script to generate the C++ source code to run each design.
-* `FPGA_run` contains various files needed to compile and run the code.
-* `scripts` contains bash scripts to compile and run the code.
-
-All the generated designs and source code, the data and scripts should be in the same directory. Then `screen_synth.sh` starts compiling all the designs inside screen sessions. `run.sh` will compile the software code and run it on the device.
+* `src` contains the base source code for the host and device, along with a few scripts.
+* `scripts` contains the high-level scripts to generate designs, compile and run them.
+* `benchmarks` is where the high-level scripts generate the designs.
 
 ## Algorithm
 
