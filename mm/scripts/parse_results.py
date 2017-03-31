@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
@@ -34,64 +34,41 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 3_run.py
+# Filename: parse_results.py
 # Version: 1.0
-# Description: Python script to run the MM benchmarks.
+# Description: Python script to parse the resulting file of the run.sh script.
 # Author: Quentin Gautier
 
 
-import os
+
 import sys
-import shutil
-import subprocess
 
-benchmarksFolder = "../benchmarks"
+sys.path.append("../../common/scripts")
+from parseResults import parseRunScriptResults
 
-hostGenScript         = "mm_altera_host_gen.py"
-runProgramScript      = "run.sh"
-resultsFilename       = "run_results.txt"
-outputResultsFilename = "results.csv"
-
-
-def runScript(script, path):
-    subprocess.call("./" + script, cwd=path, shell=True)
 
 
 def main():
-
-    device = "fpga"
-
-    if len(sys.argv) >= 2:
-        device = sys.argv[1]
-
-    print("Using " + device + " device.")
-    print("( Usage: " + sys.argv[0] + " <fpga|gpu|gpu_all> )\n")
-
-    outputFilename = device + "_" + outputResultsFilename
-
-    # Generate host files
-    print("Generating host files...")
-    runScript(hostGenScript, benchmarksFolder)
     
-    # Run host files
-    print("Running programs...")
-    runScript(runProgramScript + " " + device, benchmarksFolder)
+    if len(sys.argv) < 2:
+        print("Usage: " + sys.argv[0] + " <filename> [output_filename]")
+        sys.exit(1)
 
-    # Copy results file to current directory
-    shutil.copy(os.path.join(benchmarksFolder, resultsFilename), resultsFilename)
+    filename = sys.argv[1]
 
-    # Parse results file and output
-    print("")
-    runScript("parse_results.py " + resultsFilename + " " + outputFilename, ".")
+    out_filename = ""
+
+    csv = parseRunScriptResults(filename, num_knobs=9, design_id_start_text="mm_", results_start_text=" ")
+
+    if len(sys.argv) >= 3:
+        out_filename = sys.argv[2]
+        with open(out_filename, 'wt') as out_file:
+            out_file.write(csv)
+
+    print(csv)
 
 
-    print("Done.")
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 

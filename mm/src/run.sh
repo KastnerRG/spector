@@ -15,6 +15,7 @@ then
 fi
 
 
+> run_results.txt
 
 M=1024
 
