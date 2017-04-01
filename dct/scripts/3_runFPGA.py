@@ -52,8 +52,8 @@ benchmarksFolder = "../benchmarks"
 hostGenScript = "dct_host_gen_FPGA.py"
 hostRunScript = "run.sh"
 logicExtractScript  = "logic_util_extract.py"
-timingExtractScript = "timing_extract.py"
-
+resultsFilename       = "run_results.txt"
+outputResultsFilename = "results.csv"
 
 
 
@@ -77,9 +77,11 @@ def main():
     print("Copying files...")
 
     # Copy scripts
-    for s in [hostGenScript, hostRunScript, logicExtractScript, timingExtractScript]:
+    for s in [hostGenScript, hostRunScript, logicExtractScript]:
         copyFile(s, scriptsFolder, benchmarksFolder)
 
+    outputFilename = "fpga_" + outputResultsFilename
+    
     # Generate CPP files
     print("Generating cpp files...")
     runScript(os.path.basename(hostGenScript), benchmarksFolder)
@@ -92,8 +94,12 @@ def main():
 
     # Extract data
     print("Reading results...")
+    copyFile(resultsFilename, benchmarksFolder, scriptsFolder)
+    
     runScript(os.path.basename(logicExtractScript), benchmarksFolder)
-    runScript(os.path.basename(timingExtractScript), benchmarksFolder)
+    runScript("parse_results.py " + resultsFilename + " " + outputFilename, ".")
+
+
 
     print("Done.")
 

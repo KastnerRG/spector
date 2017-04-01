@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # ----------------------------------------------------------------------
 # Copyright (c) 2016, The Regents of the University of California All
@@ -34,87 +34,41 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 1_runGPU.py
+# Filename: parse_results.py
 # Version: 1.0
-# Description: Python script to run the designs for the DCT benchmark.
+# Description: Python script to parse the resulting file of the run.sh script.
 # Author: Quentin Gautier
 
 
-import os
+
 import sys
-import signal
-import shutil
-import subprocess
 
+sys.path.append("../../../common/scripts")
+from parseResults import parseRunScriptResults
 
-srcFolder = "../../src/gpu"
-scriptsFolder    = "."
-benchmarksFolder = "../../benchmarks"
-
-hostGenScript = "dct_host_gen_GPU.py"
-clGenScript   = "../dct_cl_gen.py"
-hostRunScript = "runGPU.sh"
-resultsFilename       = "run_results.txt"
-outputResultsFilename = "results.csv"
-
-
-
-def runScript(script, path):
-    pro = subprocess.Popen("./" + script, cwd=path, shell=True, executable="/bin/bash")
-    try:
-        pro.wait()
-    except:
-       os.killpg(os.getpgid(pro.pid), signal.SIGTERM) 
-
-    
-def copyFile(f, src, dst):
-    shutil.copy(
-            os.path.join(src, f),
-            os.path.join(dst, os.path.basename(f)))
 
 
 def main():
-
-    print("Copying files...")
-
-    # Copy source files
-    for f in os.listdir(srcFolder):
-        if os.path.isfile(os.path.join(srcFolder, f)):
-            shutil.copy(
-                    os.path.join(srcFolder, f),
-                    os.path.join(benchmarksFolder, f))
-
-    # Copy scripts
-    for s in [hostGenScript, clGenScript, hostRunScript]:
-        copyFile(s, scriptsFolder, benchmarksFolder)
-
-    outputFilename = "gpu_" + outputResultsFilename
     
-    # Generate CPP/CL files
-    print("Generating cpp/cl files...")
-    runScript(os.path.basename(clGenScript), benchmarksFolder)
-    runScript(os.path.basename(hostGenScript), benchmarksFolder)
-    
-    
-    # Run all programs
-    print("Running programs...")
-    runScript(os.path.basename(hostRunScript), benchmarksFolder)
+    if len(sys.argv) < 2:
+        print("Usage: " + sys.argv[0] + " <filename> [output_filename]")
+        sys.exit(1)
+
+    filename = sys.argv[1]
+
+    out_filename = ""
+
+    csv = parseRunScriptResults(filename, num_knobs=9, design_id_start_text="dct_", results_start_text="dse result:")
+
+    if len(sys.argv) >= 3:
+        out_filename = sys.argv[2]
+        with open(out_filename, 'wt') as out_file:
+            out_file.write(csv)
+
+    print(csv)
 
 
-    # Extract data
-    print("Reading results...")
-    copyFile(resultsFilename, benchmarksFolder, scriptsFolder)
-
-    print("")
-    runScript("parse_results.py " + resultsFilename + " " + outputFilename, ".")
-
-    print("Done.")
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 
