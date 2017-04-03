@@ -1,3 +1,5 @@
+*Note: The previous version of the histogram data was wrong. It has been replaced with the right data. The other benchmarks are good.*
+
 # Spector
 
 Spector is an OpenCL benchmark suite for FPGA. The particularity of these benchmarks is that each of them is outfitted with a range of optimization parameters (or _knobs_). These _knobs_ can be tuned to create hundreds of unique designs per benchmark.
