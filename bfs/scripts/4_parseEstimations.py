@@ -50,7 +50,7 @@ aocFilename     = "bfs_fpga/bfs_fpga.log"   # Altera OpenCL log filename (relati
 smallFilename   = "small.txt" # File to store small designs (likely to fit)
 bigFilename     = "big.txt"   # File to store large designs (not likely to fit)
 
-foldersFilename = "bfs_params.log"          # Log file containing design folder list
+foldersFilename = "params.log"          # Log file containing design folder list
 
 
 
