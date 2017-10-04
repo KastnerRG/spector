@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # ----------------------------------------------------------------------
-# Copyright (c) 2016, The Regents of the University of California All
+# Copyright (c) 2016-2017, The Regents of the University of California All
 # rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,9 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: runDesignsGpu.py
+# Filename: runDesigns.py
 # Version: 1.0
-# Description: Python script to run the designs on GPU.
+# Description: Python script to run the designs on CPU/GPU.
 # Author: Quentin Gautier
 
 
@@ -49,21 +49,29 @@ import sys
 
 
 
-def runDesignsGPU(
+def runDesigns(
         clBasename,            # Basename for the OpenCL file
         exeFilename,           # Program filename
         progInputFile    = "", # Input file path (absolute or relative to the program)
-        outfilename      = "gpu_results.csv",  # Result filename
+        outfilename      = "",                 # Result filename (default: cpu_results.csv or gpu_results.csv)
         paramsfilename   = "small.txt",        # List of designs with their parameters
         compiledfilename = "small.txt",        # List of designs to run
-        donefilename     = "gpu_run_done.csv", # List of designs to not run
+        donefilename     = "",                 # List of designs to not run (default: cpu_run_done.csv or gpu_...)
         verif_re         = re.compile(r'Verification: (\S+)'),  # Regex for verification
         verif_text       = "Passed",                            # Verification text to check for success
         time_re          = re.compile(r'Total time: (\S+) ms'), # Regex for running time
         num_runs         = 5,
         process_all      = False,  # Process all designs?
-        timeout_sec      = 60
+        timeout_sec      = 60,
+        device           = "cpu"
         ):
+
+    if not outfilename:
+        outfilename = device + "_results.csv"
+
+    if not donefilename:
+        donefilename = device + "_run_done.csv"
+
 
     done = []
     if os.path.exists(donefilename):
@@ -123,11 +131,11 @@ def runDesignsGPU(
                           
                     fit = 'Y' if aocx_exists else 'N'
                              
-                    subprocess.call("make gpu > /dev/null 2>&1", cwd=d, shell=True)
+                    subprocess.call("make " + device + " > /dev/null 2>&1", cwd=d, shell=True)
                   
                     print("Running " + d)
                     
-                    fullCommand = "./" + exeFilename + " " + progInputFile + " gpu " + str(num_runs)
+                    fullCommand = "./" + exeFilename + " " + progInputFile + " " + device + " " + str(num_runs)
                     
                     #output = subprocess.check_output(fullCommand, cwd=d, shell=True, stderr=subprocess.STDOUT) #, timeout=5)
 

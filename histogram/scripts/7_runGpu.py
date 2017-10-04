@@ -46,7 +46,7 @@ import re
 import sys
 
 sys.path.append("../../common/scripts")
-from runDesignsGpu import runDesignsGPU
+from runDesigns import runDesigns
 
 
 
@@ -64,13 +64,14 @@ def main():
     
     paramsfilename = "small.txt" if os.path.isfile("small.txt") else "params.log"
 
-    runDesignsGPU(
+    runDesigns(
             clBasename,
             exeFilename,
             verif_text  = verif_text,
             paramsfilename   = paramsfilename,
             compiledfilename = paramsfilename,
-            process_all = process_all)
+            process_all = process_all,
+            device = "gpu")
 
 
 

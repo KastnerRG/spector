@@ -46,7 +46,7 @@ import re
 import sys
 
 sys.path.append("../../common/scripts")
-from runDesignsGpu import runDesignsGPU
+from runDesigns import runDesigns
 
 
 
@@ -65,13 +65,14 @@ def main():
 
     verif_text = "PASS"
 
-    runDesignsGPU(
+    runDesigns(
             clBasename,
             exeFilename,
             paramsfilename   = paramsfilename,
             compiledfilename = paramsfilename,
             process_all = process_all,
-            verif_text  = verif_text)
+            verif_text  = verif_text,
+            device = "gpu")
 
 
 
