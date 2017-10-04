@@ -37,14 +37,35 @@
 
 TARGET := $(MYOPENCL_HOST_CODE_FILE_NAME)_host
 
-AOCL_COMPILE_CONFIG=$(shell aocl compile-config)
-AOCL_LINK_CONFIG=$(shell aocl link-config | sed 's/lterasic/laltera/g')
+
+CXX?=g++
+
+
+AOCL_INCLUDE = $(shell aocl compile-config)
+#AOCL_LIBS    = $(shell aocl link-config | sed 's/lterasic/laltera/g')
+AOCL_LIBS    = $(shell aocl link-config)
+
+CL_DIR       = /opt/AMDAPPSDK-3.0
+CL_INCLUDE   = -I$(CL_DIR)/include/
+CL_LIBS      = -L$(CL_DIR)/lib/x86_64/ -lOpenCL
 
 INCLUDE = -I../..
 
-all:
-	g++ $(MYOPENCL_HOST_CODE_FILE_NAME).cpp oclDCT8x8_gold.cpp $(INCLUDE) $(AOCL_COMPILE_CONFIG) $(AOCL_LINK_CONFIG) -o $(TARGET) -DVERBOSE=$(VERBOSE_LEVEL)
+# Targets
+.PHONY: cpu gpu fpga clean all
+
+
+
+cpu:
+	$(CXX) $(MYOPENCL_HOST_CODE_FILE_NAME).cpp oclDCT8x8_gold.cpp $(INCLUDE) $(CL_INCLUDE) $(CL_LIBS) -o $(TARGET)
+
+gpu: cpu
+all: cpu
+
+fpga:
+	$(CXX) $(MYOPENCL_HOST_CODE_FILE_NAME).cpp oclDCT8x8_gold.cpp $(INCLUDE) $(AOCL_INCLUDE) $(AOCL_LIBS) -o $(TARGET) -DVERBOSE=$(VERBOSE_LEVEL)
+
 
 clean:
-	rm $(TARGET)
-
+	#rm -rf *_host
+	rm -fr $(TARGET)

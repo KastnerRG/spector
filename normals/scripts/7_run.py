@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # ----------------------------------------------------------------------
-# Copyright (c) 2016, The Regents of the University of California All
+# Copyright (c) 2016-2017, The Regents of the University of California All
 # rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,17 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 7_runGpu.py
+# Filename: 7_run.py
 # Version: 1.0
-# Description: Python script to run the designs on GPU.
+# Description: Python script to run the designs on CPU or GPU.
 # Author: Quentin Gautier
 
 
 import os
 import re
 import sys
+import argparse
+
 
 sys.path.append("../../common/scripts")
 from runDesigns import runDesigns
@@ -50,12 +52,20 @@ from runDesigns import runDesigns
 
 def main():
 
-    # Process all designs?
-    process_all = False
-    if len(sys.argv) >= 2:
-        process_all = (sys.argv[1] == "1")
- 
-    
+    parser = argparse.ArgumentParser(description='''
+    This script runs designs on CPU or GPU.
+    ''',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('device', help='cpu or gpu')
+    parser.add_argument('-a', '--process-all', help='Process all designs', action='store_true')
+    args = parser.parse_args()
+
+
+    process_all = args.process_all
+   
+    device = args.device
+
+
     clBasename  = "normals" # Basename for the OpenCL file
     exeFilename = "comp_normals" # Program filename
 
@@ -67,12 +77,7 @@ def main():
             paramsfilename   = paramsfilename,
             compiledfilename = paramsfilename,
             process_all = process_all,
-            device = "gpu")
-
-
-
-
-
+            device = device)
 
 
 

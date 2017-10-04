@@ -165,6 +165,8 @@ def runDesigns(
             except subprocess.CalledProcessError:
                 print("ERROR " + d)
                 continue
+            except KeyboardInterrupt:
+                sys.exit(0)
             except:
                 continue
 

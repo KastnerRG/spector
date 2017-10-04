@@ -15,6 +15,13 @@ then
 elif [ "$1" == "gpu" ]
 then
 	device="gpu"
+elif [ "$1" == "cpu_all" ]
+then
+	device="cpu"
+	run_all=1
+elif [ "$1" == "cpu" ]
+then
+	device="cpu"
 fi
 
 

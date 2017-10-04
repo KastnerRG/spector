@@ -1,5 +1,7 @@
+#!/usr/bin/python3
+
 # ----------------------------------------------------------------------
-# Copyright (c) 2016, The Regents of the University of California All
+# Copyright (c) 2016-2017, The Regents of the University of California All
 # rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -32,19 +34,64 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
+# Filename: 7_run.py
+# Version: 1.0
+# Description: Python script to run the designs on CPU or GPU.
+# Author: Quentin Gautier
 
 
 
-TARGET := $(MYOPENCL_HOST_CODE_FILE_NAME)_host
+import os
+import re
+import sys
+import argparse
 
-CL_DIR       = /opt/AMDAPPSDK-3.0
-CL_INCLUDE   = -I$(CL_DIR)/include/
-CL_LIBS      = $(CL_DIR)/lib/x86_64/sdk/libOpenCL.so
 
-INCLUDE = -I../..
+sys.path.append("../../common/scripts")
+from runDesigns import runDesigns
 
-all:
-	g++ $(MYOPENCL_HOST_CODE_FILE_NAME).cpp oclDCT8x8_gold.cpp $(INCLUDE) $(CL_INCLUDE) $(CL_LIBS) -o $(TARGET)
 
-clean:
-	rm -rf *_host
+
+def main():
+
+    parser = argparse.ArgumentParser(description='''
+    This script runs designs on CPU or GPU.
+    ''',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('device', help='cpu or gpu')
+    parser.add_argument('-i', '--input', help='Path to the input file to use: ', default='../graphs/large_0.01.txt')
+    parser.add_argument('-a', '--process-all', help='Process all designs', action='store_true')
+    args = parser.parse_args()
+
+
+    progInputFile = args.input
+    if progInputFile:
+        progInputFile = os.path.abspath(progInputFile)
+
+    process_all = args.process_all
+   
+    device = args.device
+
+
+    clBasename  = "bfs_fpga" # Basename for the OpenCL file
+    exeFilename = "bfs_host" # Program filename
+
+    paramsfilename = "small.txt" if os.path.isfile("small.txt") else "params.log"
+
+    runDesigns(
+            clBasename,
+            exeFilename,
+            progInputFile,
+            paramsfilename   = paramsfilename,
+            compiledfilename = paramsfilename,
+            process_all = process_all,
+            device = device)
+
+
+
+
+
+if __name__=="__main__":
+	main()
+
+

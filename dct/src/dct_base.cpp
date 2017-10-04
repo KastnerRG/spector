@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// Copyright (c) 2016, The Regents of the University of California All
+// Copyright (c) 2016-2017, The Regents of the University of California All
 // rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -34,25 +34,22 @@
 // ----------------------------------------------------------------------
 /*
  * Filename: dct_base.cpp
- * Version: 1.0
  * Description: DCT8x8 OpenCL benchmark.
  * Author: Pingfan Meng
+ * Modified by: Quentin Gautier
  */
 
 #include <math.h>
 #include <stdio.h>
-#include "stdlib.h"
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
 
 #include "common/include/opencl_utils.h"
 
 #include "oclDCT8x8_common.h"
 
-
 #include "timer.h"
-
-#define MAX_SOURCE_SIZE 100000000
-
-#define NUM_ITER 1
 
 
 #if BLOCK_SIZE_F == 1
@@ -76,17 +73,23 @@
 
 
 using namespace spector;
+using namespace std;
 
 
-int DCT8x8_CL_LAUNCHER(float *dst, float *src, cl_uint stride, cl_uint imageH, cl_uint imageW)
+int DCT8x8_CL_LAUNCHER(
+		float *dst,
+		float *src,
+		cl_uint stride,
+		cl_uint imageH,
+		cl_uint imageW,
+		cl_device_type device_type = CL_DEVICE_TYPE_ACCELERATOR,
+		int num_runs = 1)
 {
 	cl_int error;
 
 
 	// Initialize OpenCL
 	ClContext clContext;
-	
-	cl_device_type device_type = CL_DEVICE_TYPE_ACCELERATOR;
 
 	std::vector<std::string> kernel_names;
 	kernel_names.push_back("DCT8x8");
@@ -228,7 +231,7 @@ int DCT8x8_CL_LAUNCHER(float *dst, float *src, cl_uint stride, cl_uint imageH, c
 #endif
 
 
-	for (int iter=0; iter<NUM_ITER; iter++)
+	for (int iter=0; iter<num_runs; iter++)
 	{
 
 		error = clEnqueueNDRangeKernel (command_queue,
@@ -260,9 +263,9 @@ int DCT8x8_CL_LAUNCHER(float *dst, float *src, cl_uint stride, cl_uint imageH, c
 
 
 
-	printf("Run-time is:%f ms \n",ELAPSED_TIME_MS(1, 0)/NUM_ITER);
-
-
+	printf("Run-time is:%f ms \n",ELAPSED_TIME_MS(1, 0)/num_runs);
+	
+	int NUM_ITER = num_runs; // necessary for the macro expansion
 	print_rsl;
 
 	//release everything on the device
@@ -275,14 +278,67 @@ int DCT8x8_CL_LAUNCHER(float *dst, float *src, cl_uint stride, cl_uint imageH, c
 
 }
 
-int main()
+
+
+
+//---------------------------------------------
+void printUsage(const char* argv0)
+//---------------------------------------------
 {
+	cout << "Usage: " << argv0 << " [platform] [num_runs]" << endl;
+}
+
+
+
+//---------------------------------------------
+int main(int argc, char ** argv)
+//---------------------------------------------
+{
+	if(argc >= 2)
+	{
+		if(strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
+		{
+			printUsage(argv[0]);
+			exit(EXIT_SUCCESS);
+		}
+	}
+
+	// Default device is CPU
+	cl_device_type device_type = CL_DEVICE_TYPE_CPU;
+
+	if(argc >= 2)
+	{
+		if(strcmp(argv[1], "fpga") == 0)
+		{
+			device_type = CL_DEVICE_TYPE_ACCELERATOR;
+		}
+		else if(strcmp(argv[1], "gpu") == 0)
+		{
+			device_type = CL_DEVICE_TYPE_GPU;
+		}
+		else if(strcmp(argv[1], "cpu") == 0)
+		{
+			device_type = CL_DEVICE_TYPE_CPU;
+		}
+		else
+		{
+			cerr << "Warning! Device not recognized, using CPU" << endl;
+		}
+	}
+
+	int num_runs = 1;
+	if(argc >= 3)
+	{
+		num_runs = atoi(argv[2]);
+	}
+	cout << "Running the program " << num_runs << " time" << (num_runs!=1?"s.":".") << endl;
+
+
+
+
 	float *h_Input, *h_OutputCPU, *h_OutputAcc;
 
-	const cl_uint
-		imageW = 2048,
-			   imageH = 2048,
-			   stride = 2048;
+	const cl_uint imageW = 2048, imageH = 2048, stride = 2048;
 
 	const int dir = DCT_FORWARD;
 
@@ -301,7 +357,7 @@ int main()
 	DCT8x8CPU(h_OutputCPU, h_Input, stride, imageH, imageW, dir);
 
 	//compute on the device
-	DCT8x8_CL_LAUNCHER(h_OutputAcc, h_Input, stride, imageH, imageW);
+	DCT8x8_CL_LAUNCHER(h_OutputAcc, h_Input, stride, imageH, imageW, device_type, num_runs);
 
 
 	//compare the error

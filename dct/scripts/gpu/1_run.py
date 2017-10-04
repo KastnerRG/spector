@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # ----------------------------------------------------------------------
-# Copyright (c) 2016, The Regents of the University of California All
+# Copyright (c) 2016-2017, The Regents of the University of California All
 # rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 # ----------------------------------------------------------------------
-# Filename: 1_runGPU.py
+# Filename: 1_run.py
 # Version: 1.0
 # Description: Python script to run the designs for the DCT benchmark.
 # Author: Quentin Gautier
@@ -45,15 +45,16 @@ import sys
 import signal
 import shutil
 import subprocess
+import argparse
 
 
-srcFolder = "../../src/gpu"
+srcFolder = "../../src"
 scriptsFolder    = "."
 benchmarksFolder = "../../benchmarks"
 
 hostGenScript = "dct_host_gen_GPU.py"
 clGenScript   = "../dct_cl_gen.py"
-hostRunScript = "runGPU.sh"
+hostRunScript = "runDevice.sh"
 resultsFilename       = "run_results.txt"
 outputResultsFilename = "results.csv"
 
@@ -75,6 +76,19 @@ def copyFile(f, src, dst):
 
 def main():
 
+
+    parser = argparse.ArgumentParser(description='''
+    This script generate the host code and runs the designs on CPU or GPU.
+    ''',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('device', help='cpu or gpu')
+    #parser.add_argument('-a', '--process-all', help='Process all designs', action='store_true')
+    args = parser.parse_args()
+
+    device = args.device
+
+
+
     print("Copying files...")
 
     # Copy source files
@@ -88,7 +102,7 @@ def main():
     for s in [hostGenScript, clGenScript, hostRunScript]:
         copyFile(s, scriptsFolder, benchmarksFolder)
 
-    outputFilename = "gpu_" + outputResultsFilename
+    outputFilename = device + "_" + outputResultsFilename
     
     # Generate CPP/CL files
     print("Generating cpp/cl files...")
@@ -98,7 +112,7 @@ def main():
     
     # Run all programs
     print("Running programs...")
-    runScript(os.path.basename(hostRunScript), benchmarksFolder)
+    runScript(os.path.basename(hostRunScript + " " + device), benchmarksFolder)
 
 
     # Extract data

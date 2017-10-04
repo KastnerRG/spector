@@ -65,7 +65,7 @@ def main():
         device = sys.argv[1]
 
     print("Using " + device + " device.")
-    print("( Usage: " + sys.argv[0] + " <fpga|gpu|gpu_all> )\n")
+    print("( Usage: " + sys.argv[0] + " <fpga|gpu|gpu_all|cpu|cpu_all> )\n")
 
     outputFilename = device + "_" + outputResultsFilename
 

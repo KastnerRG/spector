@@ -14,7 +14,7 @@ The following scripts generates the benchmarks, compile them and run them:
 * `4_parseEstimations.py` parses the synthesis results and determines which design are likely to fit.
 * `5_compileFull.py` runs the entire compilation process on all the designs likely to fit. The number of threads can be given as a parameter.
 * `6_runPrograms.py` runs all the designs on the FPGA, parses the timing and area data, and output the results in a file.
-* `7_runGpu.py` runs all the designs on GPU.
+* `7_run.py` runs all the designs on GPU or CPU.
 
 
 ## Note / TODO

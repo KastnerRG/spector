@@ -1,5 +1,11 @@
 #/bin/bash
 
+device=cpu
+if [ -n "$1" ]
+  then
+    device=$1
+fi
+
 M=1024
 
 num_design=0
@@ -45,10 +51,10 @@ do
 										echo "design number:" >> run_results.txt
 										echo $num_design >> run_results.txt
 										echo $host_program_name >> run_results.txt
-										make
+										make $device
 										#run host program
 										#aocl program $aocx_file_name
-										./$host_program_name >> run_results.txt
+										./$host_program_name $device 5 >> run_results.txt
 									fi
 								done
 							done			

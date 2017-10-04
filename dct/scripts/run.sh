@@ -44,10 +44,10 @@ do
 										echo "design number:" >> run_results.txt
 										echo $num_design >> run_results.txt
 										echo $host_program_name >> run_results.txt
-										make
+										make fpga
 										#run host program
 										aocl program $aocx_file_name
-										./$host_program_name >> run_results.txt
+										./$host_program_name fpga 5 >> run_results.txt
 									fi
 								done
 							done			
