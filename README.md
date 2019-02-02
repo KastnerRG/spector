@@ -1,5 +1,3 @@
-*Note: The previous version of the histogram data was wrong. It has been replaced with the right data. The other benchmarks are good.*
-
 # Spector
 
 Spector is an OpenCL benchmark suite for FPGA. The particularity of these benchmarks is that each of them is outfitted with a range of optimization parameters (or _knobs_). These _knobs_ can be tuned to create hundreds of unique designs per benchmark.
@@ -35,6 +33,16 @@ We compiled thousands of unique designs with the Altera OpenCL SDK, executed the
 ```
 Spector: An OpenCL FPGA Benchmark Suite
 Quentin Gautier, Alric Althoff, Pingfan Meng and Ryan Kastner
+
+@INPROCEEDINGS{Gautier2016,
+author={Q. Gautier and A. Althoff and Pingfan Meng and R. Kastner},
+booktitle={2016 International Conference on Field-Programmable Technology (FPT)},
+title={Spector: An OpenCL FPGA benchmark suite},
+year={2016},
+pages={141-148},
+keywords={field programmable gate arrays;high level synthesis;optimisation;statistical analysis;Spector;FPGA benchmark suite;high-level synthesis tools;design optimization;Altera OpenCL SDK;Terasic DE5 board;statistical analysis;Manuals;Benchmark testing;Discrete cosine transforms;Histograms;Open source software;Pipelines;Computational modeling},
+doi={10.1109/FPT.2016.7929519},
+month={Dec},}
 ```
 
 ## License information
